@@ -1114,7 +1114,23 @@
       if (state.currentStep > 1) goToStep(state.currentStep - 1);
     }
 
-  async function generateAIArtwork() {
+ // 💡 한국어 문장을 실시간 영어로 바꿔주는 무료 번역 보조 함수
+    async function translateKoreanToEnglish(text) {
+      if (!text || !text.trim()) return "";
+      try {
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.trim())}&langpair=ko|en`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data && data.responseData && data.responseData.translatedText) {
+          return data.responseData.translatedText;
+        }
+      } catch (err) {
+        console.warn("번역 실패 (원문 사용):", err);
+      }
+      return text;
+    }
+
+    async function generateAIArtwork() {
       if (state.remainingGenerations <= 0) {
         showToast('오늘의 붓칠 횟수를 다 썼어요! 선생님께 문의하세요 👩‍🏫', 'error');
         return;
@@ -1126,9 +1142,9 @@
 
       const phrases = [
         "AI가 스케치북에 마법을 부리는 중이에요...! ✨",
+        "내가 쓴 한글 주문서를 AI가 이해하고 있어요 🔍",
         "주인공에게 예쁜 옷을 입히는 중이에요 🎨",
-        "신비로운 배경과 따뜻한 색을 칠하고 있어요 🌈",
-        "마지막 마법 가루를 솔솔 뿌리는 중이에요 🪄"
+        "신비로운 배경과 따뜻한 색을 칠하고 있어요 🌈"
       ];
       let pIdx = 0;
       const pInterval = setInterval(() => {
@@ -1137,30 +1153,48 @@
         if (el) el.textContent = phrases[pIdx];
       }, 2000);
 
-      const fullPrompt = assembleFullPrompt();
-      const selectedStyleObj = SIMPLE_PROMPTS.styles.find(st => st.label === state.selectedItems.style);
-      const styleKeyword = selectedStyleObj ? `, style: ${selectedStyleObj.promptKeyword}` : "";
-      
-      // AI 엔진이 잘 이해하도록 프롬프트 보정
-      const finalPromptText = `${fullPrompt}${styleKeyword}, cute, highly detailed, clean lines, masterpiece`;
-      const encodedPrompt = encodeURIComponent(finalPromptText);
+      const s = state.selectedItems;
 
-      // 💡 무제한 무료 AI 이미지 생성 URL (랜덤 시드로 매번 다채롭게 생성)
-      const seed = Math.floor(Math.random() * 1000000);
+      // 1. 고정 선택지 빠른 사전 (즉시 변환용)
+      const FAST_DICT = {
+        "강아지": "puppy dog", "고양이": "kitten cat", "곰인형": "teddy bear",
+        "남자아이": "little boy", "여자아이": "little girl"
+      };
+
+      // 2. 사전에 없는 단어나 학생이 직접 타자로 친 글은 실시간 번역기 가동
+      let enSubject = FAST_DICT[s.subject] || await translateKoreanToEnglish(s.subject);
+      let enFeature = await translateKoreanToEnglish(s.feature || "");
+      let enAction = await translateKoreanToEnglish(s.action || "");
+      let enPlace = await translateKoreanToEnglish(s.place || "");
+
+      // 3. 선택한 화풍(스타일) 키워드 매칭
+      const selectedStyleObj = SIMPLE_PROMPTS.styles.find(st => st.label === s.style);
+      const enStyle = selectedStyleObj ? selectedStyleObj.promptKeyword : "cute storybook illustration";
+
+      // 4. 문맥에 맞게 영문 조합
+      let promptParts = [enStyle];
+      if (enSubject) promptParts.push(`cute ${enSubject}`);
+      if (enFeature) promptParts.push(`wearing ${enFeature}`);
+      if (enAction) promptParts.push(`${enAction}`);
+      if (enPlace) promptParts.push(`in ${enPlace}`);
+      promptParts.push("centered, cute, high resolution, masterpiece, detailed");
+
+      const finalEnglishPrompt = promptParts.join(", ");
+      const encodedPrompt = encodeURIComponent(finalEnglishPrompt);
+      const seed = Math.floor(Math.random() * 10000000);
       const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=800&nologo=true&seed=${seed}`;
 
       try {
-        // 이미지가 정상 로드될 때까지 대기
         const img = new Image();
         img.crossOrigin = "anonymous";
-        
+
         await new Promise((resolve, reject) => {
           img.onload = resolve;
           img.onerror = () => reject(new Error("이미지 다운로드 실패"));
           img.src = imageUrl;
         });
 
-        // 캔버스에 그려서 구글 드라이브 및 갤러리 저장을 위한 PNG Base64 데이터 추출
+        // Base64 추출 (구글 드라이브 및 우리반 갤러리 저장을 위함)
         const canvas = document.createElement("canvas");
         canvas.width = img.width;
         canvas.height = img.height;
@@ -1174,7 +1208,7 @@
       } catch (err) {
         clearInterval(pInterval);
         console.warn("생성 오류로 대체 화면을 표시합니다:", err);
-        generateSolidPosterFallback(fullPrompt);
+        generateSolidPosterFallback(assembleFullPrompt());
       }
     }
     function generateSolidPosterFallback(promptText) {
