@@ -1120,6 +1120,19 @@
         return;
       }
 
+      // API Key 확인 및 입력 유도
+      let apiKey = localStorage.getItem("GEMINI_API_KEY");
+      if (!apiKey || apiKey.trim() === "") {
+        apiKey = prompt("🎨 Gemini API Key를 입력해주세요:");
+        if (apiKey && apiKey.trim() !== "") {
+          apiKey = apiKey.trim();
+          localStorage.setItem("GEMINI_API_KEY", apiKey);
+        } else {
+          showToast('API 키가 없어 그림을 그릴 수 없어요.', 'error');
+          return;
+        }
+      }
+
       document.getElementById('beforeGenBox').classList.add('hidden');
       document.getElementById('duringGenBox').classList.remove('hidden');
       document.getElementById('afterGenBox').classList.add('hidden');
@@ -1139,36 +1152,20 @@
 
       const fullPrompt = assembleFullPrompt();
       const selectedStyleObj = SIMPLE_PROMPTS.styles.find(st => st.label === state.selectedItems.style);
-      const styleKeyword = selectedStyleObj ? ` Style description: ${selectedStyleObj.promptKeyword}.` : "";
-      const promptForAI = `${fullPrompt}${styleKeyword}`;
+      const styleKeyword = selectedStyleObj ? ` In the style of: ${selectedStyleObj.promptKeyword}.` : "";
+      const promptForAI = `${fullPrompt}${styleKeyword} High quality, child-friendly illustration, clean details.`;
+
+      // 💡 구글 표준 이미지 생성 모델 (Imagen 3)
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
 
       try {
-       let apiKey = localStorage.getItem("GEMINI_API_KEY");
-        if (!apiKey) {
-        apiKey = prompt("🎨 Gemini API Key를 입력해주세요 (최초 1회만 입력하면 자동 저장됩니다):");
-        if (apiKey) {
-        localStorage.setItem("GEMINI_API_KEY", apiKey.trim());
-  }
-}
-const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${apiKey}`;
-
-        let parts = [{ text: promptForAI }];
-
-        if (state.selectedItems.sketchDataUrl) {
-          const rawBase64 = state.selectedItems.sketchDataUrl.split(',')[1];
-          const mime = state.selectedItems.sketchDataUrl.split(';')[0].split(':')[1] || 'image/png';
-          parts = [
-            { text: `이 스케치를 바탕으로 다음 프롬프트를 깨끗하고 선명하게 완성해주세요: ${promptForAI}` },
-            { inlineData: { mimeType: mime, data: rawBase64 } }
-          ];
-        }
-
         const payload = {
-          contents: [{ role: 'user', parts: parts }],
-          generationConfig: {
-            responseModalities: ['IMAGE'],
-            imageConfig: { aspectRatio: "1:1" }
-          },
+          instances: [{ prompt: promptForAI }],
+          parameters: {
+            sampleCount: 1,
+            aspectRatio: "1:1",
+            outputMimeType: "image/jpeg"
+          }
         };
 
         const response = await fetch(apiUrl, {
@@ -1179,21 +1176,27 @@ const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3
 
         clearInterval(pInterval);
 
-        if (!response.ok) throw new Error("API 요청 실패");
+        if (!response.ok) {
+          const errData = await response.json();
+          console.error("API 응답 에러:", errData);
+          throw new Error(errData?.error?.message || "이미지 생성 실패");
+        }
 
         const result = await response.json();
-        const imagePart = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+        // Imagen 3 응답에서 base64 이미지 추출
+        const b64 = result?.predictions?.[0]?.bytesBase64Encoded;
 
-        if (imagePart && imagePart.inlineData?.data) {
-          const imageUrl = `data:${imagePart.inlineData.mimeType || 'image/png'};base64,${imagePart.inlineData.data}`;
+        if (b64) {
+          const imageUrl = `data:image/jpeg;base64,${b64}`;
           displayGeneratedResult(imageUrl);
         } else {
-          generateSolidPosterFallback(fullPrompt);
+          throw new Error("이미지 데이터 없음");
         }
 
       } catch (err) {
         clearInterval(pInterval);
-        console.warn("API 연결 대신 캔버스 그림을 생성합니다:", err);
+        console.warn("AI 생성 오류로 대체 화면을 표시합니다:", err);
+        showToast(`생성 중 오류 발생: ${err.message}`, 'error');
         generateSolidPosterFallback(fullPrompt);
       }
     }
