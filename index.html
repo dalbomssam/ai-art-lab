@@ -1143,8 +1143,14 @@
       const promptForAI = `${fullPrompt}${styleKeyword}`;
 
       try {
-        const apiKey = "";
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${apiKey}`;
+       let apiKey = localStorage.getItem("GEMINI_API_KEY");
+        if (!apiKey) {
+        apiKey = prompt("🎨 Gemini API Key를 입력해주세요 (최초 1회만 입력하면 자동 저장됩니다):");
+        if (apiKey) {
+        localStorage.setItem("GEMINI_API_KEY", apiKey.trim());
+  }
+}
+const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${apiKey}`;
 
         let parts = [{ text: promptForAI }];
 
