@@ -79,6 +79,7 @@
   <header class="sticky top-0 z-40 bg-white border-b-4 border-slate-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
       
+      <!-- 로고 및 타이틀 -->
       <div class="flex items-center gap-3 cursor-pointer group" onclick="navigateTo('workshop')">
         <div class="w-12 h-12 rounded-2xl bg-school-purple text-white flex items-center justify-center text-2xl shadow-flat-purple transform group-hover:-rotate-3 transition">
           <i class="fa-solid fa-wand-magic-sparkles"></i>
@@ -99,24 +100,35 @@
         </div>
       </div>
 
+      <!-- 상단 버튼 그룹 -->
       <div class="flex items-center gap-2 sm:gap-3">
+        <!-- 남은 그리기 횟수 -->
         <div id="quotaBadge" onclick="handleQuotaClick()" class="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-school-lavenderLight border-2 border-school-lavenderBorder text-school-ink font-bold text-xs sm:text-sm cursor-pointer hover:bg-purple-100 transition" title="선생님 전용: 3번 누르면 횟수 충전!">
           <span>남은 붓칠:</span>
           <strong id="quotaCount" class="text-school-purple text-base font-cute">5</strong>
           <span>회</span>
         </div>
 
+        <!-- 그림 그리기 버튼 -->
         <button id="btnNavWorkshop" onclick="navigateTo('workshop')" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-cute text-base bg-school-purple text-white shadow-flat-purple hover:bg-school-purpleHover transition active:translate-y-1 active:shadow-none">
           <i class="fa-solid fa-palette"></i>
           <span>그림 그리기</span>
         </button>
 
+        <!-- 갤러리 버튼 -->
         <button id="btnNavGallery" onclick="navigateTo('gallery')" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-cute text-base bg-white text-school-ink border-2 border-slate-300 hover:border-school-mint hover:text-school-mint transition shadow-sm active:translate-y-0.5">
           <i class="fa-solid fa-images text-school-mint"></i>
           <span>우리 반 갤러리</span>
           <span id="galleryCountBadge" class="px-2 py-0.2 rounded-full bg-school-mint text-white text-xs font-bold">0</span>
         </button>
 
+        <!-- 👩‍🏫 선생님 전용 관리 모드 버튼 -->
+        <button onclick="toggleTeacherMode()" id="btnTeacherMode" title="선생님 전용 관리 메뉴 (비밀번호: 1004)" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white text-school-sub border-2 border-slate-300 hover:border-school-purple transition shadow-sm">
+          <i class="fa-solid fa-chalkboard-user text-school-purple"></i>
+          <span id="teacherModeText">선생님</span>
+        </button>
+
+        <!-- 학생 변경 / 다시 로그인 -->
         <button onclick="openLoginModal()" title="다시 로그인하기" class="w-11 h-11 rounded-xl bg-white border-2 border-slate-300 hover:border-school-purple text-school-sub hover:text-school-purple flex items-center justify-center transition shadow-sm">
           <i class="fa-solid fa-right-from-bracket"></i>
         </button>
@@ -127,13 +139,17 @@
 
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
 
-    <!-- VIEW 1: 그림 창작소 -->
+    <!-- ========================================== -->
+    <!-- VIEW 1: 그림 창작소 (Workshop) -->
+    <!-- ========================================== -->
     <section id="viewWorkshop" class="space-y-6">
 
+      <!-- 상단 단계별 인덱스 바 -->
       <div class="bg-white rounded-3xl p-5 sm:p-6 border-4 border-slate-200 shadow-flat-paper relative">
         <div class="flex items-center justify-between max-w-4xl mx-auto relative overflow-x-auto pb-2 sm:pb-0">
           <div class="absolute left-8 right-8 top-6 -translate-y-1/2 h-1 bg-slate-200 -z-0"></div>
 
+          <!-- 1단계: 그림 준비 -->
           <div onclick="goToStep(1)" class="step-item flex flex-col items-center gap-1.5 cursor-pointer z-10 min-w-[72px]">
             <div id="stepBubble1" class="w-12 h-12 rounded-2xl flex items-center justify-center border-4 border-school-purple bg-school-purple text-white text-xl font-bold shadow-sm transition">
               <i class="fa-solid fa-camera"></i>
@@ -141,6 +157,7 @@
             <span id="stepLabel1" class="text-xs sm:text-sm font-bold text-school-purple font-cute">1. 그림 준비</span>
           </div>
 
+          <!-- 2단계: 어떤 모습? -->
           <div onclick="goToStep(2)" class="step-item flex flex-col items-center gap-1.5 cursor-pointer z-10 min-w-[72px]">
             <div id="stepBubble2" class="w-12 h-12 rounded-2xl flex items-center justify-center border-4 border-slate-300 bg-white text-school-sub text-xl font-bold transition">
               <i class="fa-solid fa-wand-magic-sparkles text-school-purple"></i>
@@ -148,6 +165,7 @@
             <span id="stepLabel2" class="text-xs sm:text-sm font-bold text-school-sub font-cute">2. 어떤 모습?</span>
           </div>
 
+          <!-- 3단계: 행동 -->
           <div onclick="goToStep(3)" class="step-item flex flex-col items-center gap-1.5 cursor-pointer z-10 min-w-[72px]">
             <div id="stepBubble3" class="w-12 h-12 rounded-2xl flex items-center justify-center border-4 border-slate-300 bg-white text-school-sub text-xl font-bold transition">
               <i class="fa-solid fa-person-running text-school-mint"></i>
@@ -155,6 +173,7 @@
             <span id="stepLabel3" class="text-xs sm:text-sm font-bold text-school-sub font-cute">3. 행동</span>
           </div>
 
+          <!-- 4단계: 장소 -->
           <div onclick="goToStep(4)" class="step-item flex flex-col items-center gap-1.5 cursor-pointer z-10 min-w-[72px]">
             <div id="stepBubble4" class="w-12 h-12 rounded-2xl flex items-center justify-center border-4 border-slate-300 bg-white text-school-sub text-xl font-bold transition">
               <i class="fa-solid fa-mountain-sun text-school-lavender"></i>
@@ -162,6 +181,7 @@
             <span id="stepLabel4" class="text-xs sm:text-sm font-bold text-school-sub font-cute">4. 장소</span>
           </div>
 
+          <!-- 5단계: 느낌 -->
           <div onclick="goToStep(5)" class="step-item flex flex-col items-center gap-1.5 cursor-pointer z-10 min-w-[72px]">
             <div id="stepBubble5" class="w-12 h-12 rounded-2xl flex items-center justify-center border-4 border-slate-300 bg-white text-school-sub text-xl font-bold transition">
               <i class="fa-solid fa-palette text-school-sand"></i>
@@ -169,6 +189,7 @@
             <span id="stepLabel5" class="text-xs sm:text-sm font-bold text-school-sub font-cute">5. 느낌</span>
           </div>
 
+          <!-- 6단계: 완성! -->
           <div onclick="goToStep(6)" class="step-item flex flex-col items-center gap-1.5 cursor-pointer z-10 min-w-[72px]">
             <div id="stepBubble6" class="w-12 h-12 rounded-2xl flex items-center justify-center border-4 border-slate-300 bg-white text-school-sub text-xl font-bold transition">
               <i class="fa-solid fa-crown text-school-purple"></i>
@@ -180,9 +201,10 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
+        <!-- 좌측: 선택 카드 (7열) -->
         <div class="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-7 border-4 border-slate-200 shadow-flat-paper">
           
-          <!-- 1단계 -->
+          <!-- 1단계: 그림 준비 -->
           <div id="panelStep1" class="step-panel space-y-5">
             <div class="text-center space-y-1">
               <span class="text-xs font-bold text-school-purple bg-school-purpleLight px-3 py-1 rounded-full border border-school-purpleBorder">1단계</span>
@@ -248,7 +270,7 @@
             </div>
           </div>
 
-          <!-- 2단계 -->
+          <!-- 2단계: 어떤 모습? -->
           <div id="panelStep2" class="step-panel hidden space-y-5">
             <div class="text-center space-y-1">
               <span class="text-xs font-bold text-school-purple bg-school-purpleLight px-3 py-1 rounded-full border border-school-purpleBorder">2단계</span>
@@ -292,7 +314,7 @@
             </div>
           </div>
 
-          <!-- 3단계 -->
+          <!-- 3단계: 행동 -->
           <div id="panelStep3" class="step-panel hidden space-y-5">
             <div class="text-center space-y-1">
               <span class="text-xs font-bold text-school-mint bg-school-mintLight px-3 py-1 rounded-full border border-school-mintBorder">3단계</span>
@@ -312,7 +334,7 @@
             </div>
           </div>
 
-          <!-- 4단계 -->
+          <!-- 4단계: 장소 -->
           <div id="panelStep4" class="step-panel hidden space-y-5">
             <div class="text-center space-y-1">
               <span class="text-xs font-bold text-school-lavender bg-school-lavenderLight px-3 py-1 rounded-full border border-school-lavenderBorder">4단계</span>
@@ -332,7 +354,7 @@
             </div>
           </div>
 
-          <!-- 5단계 -->
+          <!-- 5단계: 느낌 -->
           <div id="panelStep5" class="step-panel hidden space-y-5">
             <div class="text-center space-y-1.5">
               <div class="w-14 h-14 mx-auto rounded-full bg-purple-100/90 text-school-purple flex items-center justify-center text-2xl shadow-sm mb-1">
@@ -349,7 +371,7 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4.5 pt-1" id="styleChips"></div>
           </div>
 
-          <!-- 6단계 -->
+          <!-- 6단계: 완성! -->
           <div id="panelStep6" class="step-panel hidden space-y-5">
             <div class="text-center space-y-1">
               <span class="text-xs font-bold text-school-purple bg-school-purpleLight px-3 py-1 rounded-full border border-school-purpleBorder">마지막 단계</span>
@@ -440,7 +462,7 @@
 
         </div>
 
-        <!-- 프롬프트 블록 조립기 -->
+        <!-- 우측: 프롬프트 블록 조립기 (5열) -->
         <div class="lg:col-span-5 bg-white rounded-3xl p-6 border-4 border-slate-200 shadow-flat-paper sticky top-28 space-y-5">
           
           <div class="flex items-center justify-between pb-3 border-b-2 border-slate-200">
@@ -500,7 +522,9 @@
 
     </section>
 
-    <!-- VIEW 2: 우리 반 갤러리 -->
+    <!-- ========================================== -->
+    <!-- VIEW 2: 우리 반 갤러리 (Gallery) -->
+    <!-- ========================================== -->
     <section id="viewGallery" class="hidden space-y-6">
       
       <div class="bg-white rounded-3xl p-6 border-4 border-slate-200 shadow-flat-paper flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -629,7 +653,7 @@
 
   <script>
     // ⚠️ 1단계에서 복사한 Google Apps Script 웹 앱 URL을 여기에 붙여넣으세요!
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxNoVUa2ohxBkUOJ7sRVcFaJTrFwhpiYJHNhi74lC7PnYJOa7OX6xIGpjwpTBOUN0hf/exec";
+    const GAS_URL = "여기에_웹_앱_URL을_붙여넣으세요";
 
     const SIMPLE_PROMPTS = {
       features: [
@@ -684,7 +708,7 @@
         },
         { 
           label: "수채화 스타일", 
-          imgUrl: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=500&auto=format&fit=crop&q=80",
+          imgUrl: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500&auto=format&fit=crop&q=80",
           promptKeyword: "soft watercolor painting on textured fine art paper, gentle pigment bleed, sunny Mediterranean village scenery, delicate pastel brushstrokes", 
           icon: "🎨" 
         },
@@ -723,6 +747,7 @@
       lastGeneratedPrompt: null,
       galleryItems: [],
       activeModalArtId: null,
+      isTeacherMode: false, // 💡 선생님 관리자 모드 상태
     };
 
     window.onload = function() {
@@ -732,6 +757,22 @@
       updateLivePromptUI();
       openLoginModal();
     };
+
+    // 💡 한국어 문장을 실시간 영어로 바꿔주는 무료 번역 보조 함수
+    async function translateKoreanToEnglish(text) {
+      if (!text || !text.trim()) return "";
+      try {
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.trim())}&langpair=ko|en`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data && data.responseData && data.responseData.translatedText) {
+          return data.responseData.translatedText;
+        }
+      } catch (err) {
+        console.warn("번역 실패 (원문 사용):", err);
+      }
+      return text;
+    }
 
     // 💡 시트에서 전체 학생의 작품 목록 조회
     async function loadGalleryFromGoogleSheets() {
@@ -1114,22 +1155,7 @@
       if (state.currentStep > 1) goToStep(state.currentStep - 1);
     }
 
- // 💡 한국어 문장을 실시간 영어로 바꿔주는 무료 번역 보조 함수
-    async function translateKoreanToEnglish(text) {
-      if (!text || !text.trim()) return "";
-      try {
-        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.trim())}&langpair=ko|en`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data && data.responseData && data.responseData.translatedText) {
-          return data.responseData.translatedText;
-        }
-      } catch (err) {
-        console.warn("번역 실패 (원문 사용):", err);
-      }
-      return text;
-    }
-
+    // 💡 [AI 이미지 생성 함수 - 실시간 영문 번역 결합]
     async function generateAIArtwork() {
       if (state.remainingGenerations <= 0) {
         showToast('오늘의 붓칠 횟수를 다 썼어요! 선생님께 문의하세요 👩‍🏫', 'error');
@@ -1142,7 +1168,7 @@
 
       const phrases = [
         "AI가 스케치북에 마법을 부리는 중이에요...! ✨",
-        "내가 쓴 한글 주문서를 AI가 이해하고 있어요 🔍",
+        "주문서의 단어들을 AI가 분석하고 있어요 🔍",
         "주인공에게 예쁜 옷을 입히는 중이에요 🎨",
         "신비로운 배경과 따뜻한 색을 칠하고 있어요 🌈"
       ];
@@ -1155,23 +1181,23 @@
 
       const s = state.selectedItems;
 
-      // 1. 고정 선택지 빠른 사전 (즉시 변환용)
+      // 1. 기본 동물/인물 빠른 사전
       const FAST_DICT = {
         "강아지": "puppy dog", "고양이": "kitten cat", "곰인형": "teddy bear",
         "남자아이": "little boy", "여자아이": "little girl"
       };
 
-      // 2. 사전에 없는 단어나 학생이 직접 타자로 친 글은 실시간 번역기 가동
+      // 2. 실시간 자동 번역 (직접 쓴 한글도 영문으로 변환)
       let enSubject = FAST_DICT[s.subject] || await translateKoreanToEnglish(s.subject);
       let enFeature = await translateKoreanToEnglish(s.feature || "");
       let enAction = await translateKoreanToEnglish(s.action || "");
       let enPlace = await translateKoreanToEnglish(s.place || "");
 
-      // 3. 선택한 화풍(스타일) 키워드 매칭
+      // 3. 스타일 키워드
       const selectedStyleObj = SIMPLE_PROMPTS.styles.find(st => st.label === s.style);
       const enStyle = selectedStyleObj ? selectedStyleObj.promptKeyword : "cute storybook illustration";
 
-      // 4. 문맥에 맞게 영문 조합
+      // 4. 영어 프롬프트 조립
       let promptParts = [enStyle];
       if (enSubject) promptParts.push(`cute ${enSubject}`);
       if (enFeature) promptParts.push(`wearing ${enFeature}`);
@@ -1194,7 +1220,6 @@
           img.src = imageUrl;
         });
 
-        // Base64 추출 (구글 드라이브 및 우리반 갤러리 저장을 위함)
         const canvas = document.createElement("canvas");
         canvas.width = img.width;
         canvas.height = img.height;
@@ -1211,6 +1236,7 @@
         generateSolidPosterFallback(assembleFullPrompt());
       }
     }
+
     function generateSolidPosterFallback(promptText) {
       const cvs = document.createElement('canvas');
       cvs.width = 600;
@@ -1304,12 +1330,13 @@
       document.getElementById('imageDetailModal').classList.remove('hidden');
     }
 
+    // 💡 [선생님 3회 클릭 충전 기능]
     function handleQuotaClick() {
       state.quotaClickCount++;
       if (state.quotaClickCount >= 3) {
         state.quotaClickCount = 0;
-        const password = prompt("👩‍🏫 선생님 전용 기능입니다.\n충전 비밀번호를 입력해주세요 (기본: 1004)");
-        if (password === "2626") {
+        const password = prompt("👩‍🏫 선생님 전용 관리자 기능입니다.\n비밀번호를 입력해주세요 (기본: 1004)");
+        if (password === "1004") {
           state.remainingGenerations += 5;
           updateQuotaDisplay();
           showToast(`선생님 파워! 붓칠 횟수가 5회 충전되었어요 🎨 (남은 횟수: ${state.remainingGenerations})`, 'success');
@@ -1318,6 +1345,60 @@
         }
       }
       setTimeout(() => { state.quotaClickCount = 0; }, 3000);
+    }
+
+    // 💡 [선생님 관리 모드 토글 함수]
+    function toggleTeacherMode() {
+      if (!state.isTeacherMode) {
+        const pwd = prompt("👩‍🏫 선생님 전용 관리자 비밀번호를 입력해주세요 (기본: 1004):");
+        if (pwd === "1004") {
+          state.isTeacherMode = true;
+          document.getElementById('teacherModeText').textContent = "관리 중 (ON)";
+          document.getElementById('btnTeacherMode').className = "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-purple-600 text-white border-2 border-purple-700 shadow-sm";
+          
+          if (confirm("선생님 관리자 모드가 켜졌습니다!\n갤러리의 모든 작품에 빨간색 [삭제 🗑️] 버튼이 표시됩니다.\n\n현재 화면의 붓칠 횟수도 10회 충전할까요?")) {
+            state.remainingGenerations += 10;
+            updateQuotaDisplay();
+          }
+          renderGallery(document.getElementById('galleryFilterSelect').value);
+          showToast('선생님 관리자 모드가 켜졌습니다. 👩‍🏫', 'success');
+        } else if (pwd !== null) {
+          showToast('비밀번호가 일치하지 않습니다.', 'error');
+        }
+      } else {
+        state.isTeacherMode = false;
+        document.getElementById('teacherModeText').textContent = "선생님";
+        document.getElementById('btnTeacherMode').className = "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white text-school-sub border-2 border-slate-300 hover:border-school-purple transition shadow-sm";
+        renderGallery(document.getElementById('galleryFilterSelect').value);
+        showToast('선생님 모드가 종료되었습니다.', 'info');
+      }
+    }
+
+    // 💡 [작품 삭제 함수 - 구글 시트 연동]
+    async function deleteGalleryItem(e, id) {
+      if (e) e.stopPropagation();
+      
+      if (!confirm("정말 이 학생의 작품을 갤러리에서 삭제하시겠습니까?\n(구글 시트에서도 함께 삭제됩니다)")) {
+        return;
+      }
+
+      state.galleryItems = state.galleryItems.filter(item => item.id !== id);
+      renderGallery(document.getElementById('galleryFilterSelect').value);
+      updateGalleryCountBadge();
+
+      if (GAS_URL && !GAS_URL.includes("여기에_웹_앱_URL")) {
+        try {
+          await fetch(GAS_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "delete", id: id })
+          });
+          showToast('작품이 정상적으로 삭제되었습니다. 🗑️', 'info');
+        } catch (err) {
+          console.warn("시트 삭제 실패:", err);
+        }
+      }
     }
 
     function updateQuotaDisplay() {
@@ -1340,7 +1421,7 @@
       document.body.removeChild(a);
     }
 
-    // 💡 [핵심] 구글 시트 및 드라이브로 영구 저장 (POST)
+    // 💡 [구글 시트 및 드라이브로 영구 저장]
     async function shareToGallery() {
       if (!state.currentGeneratedImage) return;
 
@@ -1399,6 +1480,7 @@
       }
     }
 
+    // 💡 [갤러리 렌더링 - 선생님 모드 시 삭제 버튼 노출]
     function renderGallery(filter = 'all') {
       const container = document.getElementById('galleryGrid');
       const emptyNotice = document.getElementById('emptyGalleryNotice');
@@ -1427,6 +1509,13 @@
               <span class="absolute top-2.5 left-2.5 bg-school-purple text-white text-[11px] font-cute px-2.5 py-0.5 rounded-full shadow">
                 내 그림 ⭐
               </span>
+            ` : ''}
+
+            <!-- 💡 선생님 관리자 모드일 때만 나타나는 빨간색 삭제 버튼 -->
+            ${state.isTeacherMode ? `
+              <button onclick="deleteGalleryItem(event, '${art.id}')" title="이 학생 작품 삭제하기" class="absolute top-2.5 right-2.5 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs shadow-lg transition transform hover:scale-110 z-10">
+                <i class="fa-solid fa-trash"></i>
+              </button>
             ` : ''}
           </div>
 
@@ -1465,7 +1554,6 @@
       renderGallery(val);
     }
 
-    // 💡 [핵심] 좋아요 누를 때 구글 시트와 동기화
     async function toggleLike(id) {
       const art = state.galleryItems.find(a => a.id === id);
       if (!art) return;
