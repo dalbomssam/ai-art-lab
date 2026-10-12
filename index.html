@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>우리들의 AI 창작소</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nunito:wght@700;800;900&family=Pretendard:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', 'sans-serif'],
+            cute: ['Jua', 'sans-serif'],
+          },
+          colors: {
+            school: {
+              bg: '#FFFFFF',
+              canvas: '#FAF8F5',
+              line: '#E7E2D8',
+              ink: '#262231',
+              sub: '#64748B',
+              purple: '#7C3AED',
+              purpleHover: '#6D28D9',
+              purpleLight: '#F5F3FF',
+              purpleBorder: '#DDD6FE',
+              mint: '#0D9488',
+              mintHover: '#0F766E',
+              mintLight: '#F0FDFA',
+              mintBorder: '#99F6E4',
+              lavender: '#A855F7',
+              lavenderLight: '#FAF5FF',
+              lavenderBorder: '#E9D5FF',
+              sand: '#D97706',
+              sandLight: '#FEFCE8',
+              sandBorder: '#FDE047',
+            }
+          },
+          boxShadow: {
+            'flat-purple': '0 4px 0 #5B21B6',
+            'flat-mint': '0 4px 0 #0F766E',
+            'flat-card': '0 4px 0 #CBD5E1',
+            'flat-paper': '0 8px 0 #E7E2D8',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #FAF8F5;
+      background-image: 
+        linear-gradient(to right, #E7E2D8 1.5px, transparent 1.5px), 
+        linear-gradient(to bottom, #E7E2D8 1.5px, transparent 1.5px);
+      background-size: 28px 28px;
+      color: #262231;
+    }
+
+    .chip-item { transition: all 0.15s ease-in-out; }
+    .chip-item:hover { transform: translateY(-2px); }
+    .chip-item:active { transform: translateY(2px); }
+
+    .slot-dash { border: 2px dashed #94A3B8; background-color: #FFFFFF; }
+    .slot-empty-bullet { border: 2px dashed #CBD5E1; background-color: #F8FAFC; color: #64748B; font-weight: 700; }
+    .slot-filled-purple { border: 2px solid #7C3AED; background-color: #F5F3FF; color: #7C3AED; font-weight: 800; }
+    .slot-filled-mint { border: 2px solid #0D9488; background-color: #F0FDFA; color: #0D9488; font-weight: 800; }
+    .slot-filled-lavender { border: 2px solid #A855F7; background-color: #FAF5FF; color: #9333EA; font-weight: 800; }
+    .slot-filled-sand { border: 2px solid #D97706; background-color: #FEFCE8; color: #B45309; font-weight: 800; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-school-purpleLight selection:text-school-purple">
+
+  <header class="sticky top-0 z-40 bg-white border-b-4 border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+      
+      <div class="flex items-center gap-3 cursor-pointer group" onclick="navigateTo('workshop')">
+        <div class="w-12 h-12 rounded-2xl bg-school-purple text-white flex items-center justify-center text-2xl shadow-flat-purple transform group-hover:-rotate-3 transition">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl sm:text-3xl font-cute tracking-wide text-school-ink">
+              우리들의 AI 창작소
+            </h1>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-school-mintLight text-school-mint font-extrabold border-2 border-school-mintBorder hidden sm:inline-block">
+              ✨ 상상 스케치 교실
+            </span>
+          </div>
+          <p id="currentUserDisplay" class="text-xs text-school-sub font-semibold flex items-center gap-1.5 mt-0.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-school-mint"></span>
+            로그인이 필요해요!
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div id="quotaBadge" onclick="handleQuotaClick()" class="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-school-lavenderLight border-2 border-school-lavenderBorder text-school-ink font-bold text-xs sm:text-sm cursor-pointer hover:bg-purple-100 transition" title="선생님 전용: 3번 누르면 횟수 충전!">
+          <span>남은 붓칠:</span>
+          <strong id="quotaCount" class="text-school-purple text-base font-cute">5</strong>
+          <span>회</span>
+        </div>
+
+        <button id="btnNavWorkshop" onclick="navigateTo('workshop')" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-cute text-base bg-school-purple text-white shadow-flat-purple hover:bg-school-purpleHover transition active:translate-y-1 active:shadow-none">
+          <i class="fa-solid fa-palette"></i>
+          <span>그림 그리기</span>
+        </button>
+
+        <button id="btnNavGallery" onclick="navigateTo('gallery')" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-cute text-base bg-white text-school-ink border-2 border-slate-300 hover:border-school-mint hover:text-school-mint transition shadow-sm active:translate-y-0.5">
+          <i class="fa-solid fa-images text-school-mint"></i>
+          <span>우리 반 갤러리</span>
+          <span id="galleryCountBadge" class="px-2 py-0.2 rounded-full bg-school-mint text-white text-xs font-bold">0</span>
+        </button>
+
+        <button onclick="openLoginModal()" title="다시 로그인하기" class="w-11 h-11 rounded-xl bg-white border-2 border-slate-300 hover:border-school-purple text-school-sub hover:text-school-purple flex items-center justify-center transition shadow-sm">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- VIEW 1: 그림 창작소 -->
+    <section id="viewWorkshop" class="space-y-6">
+
+      <div class="bg-white rounded-3xl p-5 sm:p-6 border-4 border-slate-200 shadow-flat-paper relative">
+        <div class="flex items-center justify-between max-w-4xl mx-auto relative overflow-x-auto pb-2 sm:pb-0">
+          <div class="absolute left-8 right-8 top-6 -translate-y-1/2 h-1 bg-slate-200 -z-0"></div>
+
+          <div onclick="goToStep(1)" class="step-item flex flex-col items-center gap-1.5 cursor-pointer z-10 min-w-[72px]">
+            <div id="stepBubble1" class="w-12 h-12 rounded-2xl flex items-center justify-center border-4 border-school-purple bg-school-purple text-white text-xl font-bold shadow-sm transition">
+              <i class="fa-solid fa-camera"></i>
+            </div>
+            <span id="stepLabel1" class="text-xs sm:text-sm font-bold text-school-purple font-cute">1. 그림 준비</span>
+          </div>
+
+          <div onclick="goToStep(2)" class="step-item flex flex-col items-center gap-1.5 cursor-pointer z-10 min-w-[72px]">
+            <div id="stepBubble2" class="w-12 h-12 rounded-2xl flex items-center justify-center border-4 border-slate-300 bg-white text-school-sub text-xl font-bold transition">
+              <i class="fa-solid fa-wand-magic-sparkles text-school-purple"></i>
+            </div>
+            <span id="stepLabel2" class="text-xs sm:text-sm font-bold text-school-sub font-cute">2. 어떤 모습?</span>
+          </div>
+
+          <div onclick="goToStep(3)" class="step-item flex flex-col items-center gap-1.5 cursor-pointer z-10 min-w-[72px]">
+            <div id="stepBubble3" class="w-12 h-12 rounded-2xl flex items-center justify-center border-4 border-slate-300 bg-white text-school-sub text-xl font-bold transition">
+              <i class="fa-solid fa-person-running text-school-mint"></i>
+            </div>
+            <span id="stepLabel3" class="text-xs sm:text-sm font-bold text-school-sub font-cute">3. 행동</span>
+          </div>
+
+          <div onclick="goToStep(4)" class="step-item flex flex-col items-center gap-1.5 cursor-pointer z-10 min-w-[72px]">
+            <div id="stepBubble4" class="w-12 h-12 rounded-2xl flex items-center justify-center border-4 border-slate-300 bg-white text-school-sub text-xl font-bold transition">
+              <i class="fa-solid fa-mountain-sun text-school-lavender"></i>
+            </div>
+            <span id="stepLabel4" class="text-xs sm:text-sm font-bold text-school-sub font-cute">4. 장소</span>
+          </div>
+
+          <div onclick="goToStep(5)" class="step-item flex flex-col items-center gap-1.5 cursor-pointer z-10 min-w-[72px]">
+            <div id="stepBubble5" class="w-12 h-12 rounded-2xl flex items-center justify-center border-4 border-slate-300 bg-white text-school-sub text-xl font-bold transition">
+              <i class="fa-solid fa-palette text-school-sand"></i>
+            </div>
+            <span id="stepLabel5" class="text-xs sm:text-sm font-bold text-school-sub font-cute">5. 느낌</span>
+          </div>
+
+          <div onclick="goToStep(6)" class="step-item flex flex-col items-center gap-1.5 cursor-pointer z-10 min-w-[72px]">
+            <div id="stepBubble6" class="w-12 h-12 rounded-2xl flex items-center justify-center border-4 border-slate-300 bg-white text-school-sub text-xl font-bold transition">
+              <i class="fa-solid fa-crown text-school-purple"></i>
+            </div>
+            <span id="stepLabel6" class="text-xs sm:text-sm font-bold text-school-sub font-cute">6. 완성!</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <div class="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-7 border-4 border-slate-200 shadow-flat-paper">
+          
+          <!-- 1단계 -->
+          <div id="panelStep1" class="step-panel space-y-5">
+            <div class="text-center space-y-1">
+              <span class="text-xs font-bold text-school-purple bg-school-purpleLight px-3 py-1 rounded-full border border-school-purpleBorder">1단계</span>
+              <h2 class="text-2xl font-cute text-school-ink">그림을 준비해 볼까요?</h2>
+              <p class="text-sm text-school-sub font-medium">스케치북 사진을 올리거나, 귀여운 캐릭터를 골라보세요!</p>
+            </div>
+
+            <label for="sketchUploadInput" class="block border-3 border-dashed border-school-purple rounded-3xl p-6 text-center cursor-pointer bg-school-purpleLight hover:bg-purple-100/40 transition group">
+              <input type="file" id="sketchUploadInput" accept="image/*" class="hidden" onchange="handleFileUpload(event)">
+              
+              <div id="uploadPlaceholder" class="space-y-2">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-white text-school-purple flex items-center justify-center text-2xl shadow-sm border-2 border-school-purpleBorder group-hover:scale-105 transition">
+                  <i class="fa-solid fa-camera"></i>
+                </div>
+                <h4 class="font-cute text-lg text-school-ink">내 스케치북 사진 올리기</h4>
+                <p class="text-xs text-school-sub">찰칵 찍은 그림 사진을 쏙 넣어보세요!</p>
+              </div>
+
+              <div id="uploadPreviewBox" class="hidden flex flex-col items-center">
+                <div class="relative w-40 h-40 rounded-2xl overflow-hidden border-4 border-white shadow-md">
+                  <img id="uploadPreviewImg" src="" alt="스케치 미리보기" class="w-full h-full object-cover">
+                  <button type="button" onclick="removeUploadedSketch(event)" class="absolute top-2 right-2 bg-school-purple text-white w-7 h-7 rounded-full flex items-center justify-center text-xs shadow hover:bg-school-purpleHover">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+                <span class="mt-2 text-xs font-bold text-school-mint bg-school-mintLight px-3 py-1 rounded-full border border-school-mintBorder">
+                  스케치 사진 등록 완료! ✨
+                </span>
+              </div>
+            </label>
+
+            <div class="pt-2">
+              <p class="text-xs font-bold text-school-ink mb-2.5 flex items-center gap-1.5">
+                <i class="fa-solid fa-sparkles text-school-lavender"></i> 사진이 없다면? 밑그림 주인공 콕 찍기:
+              </p>
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                <button type="button" onclick="selectPresetSketch('강아지', '🐶')" class="preset-card p-3 rounded-2xl border-3 border-school-purple bg-school-purpleLight flex flex-col items-center gap-1 transition text-center shadow-sm">
+                  <span class="text-3xl">🐶</span>
+                  <span class="text-xs font-bold text-school-ink">강아지</span>
+                  <span class="text-[10px] text-school-sub">밑그림</span>
+                </button>
+                <button type="button" onclick="selectPresetSketch('고양이', '🐱')" class="preset-card p-3 rounded-2xl border-3 border-slate-200 bg-white flex flex-col items-center gap-1 transition text-center">
+                  <span class="text-3xl">🐱</span>
+                  <span class="text-xs font-bold text-school-ink">고양이</span>
+                  <span class="text-[10px] text-school-sub">밑그림</span>
+                </button>
+                <button type="button" onclick="selectPresetSketch('곰인형', '🧸')" class="preset-card p-3 rounded-2xl border-3 border-slate-200 bg-white flex flex-col items-center gap-1 transition text-center">
+                  <span class="text-3xl">🧸</span>
+                  <span class="text-xs font-bold text-school-ink">곰인형</span>
+                  <span class="text-[10px] text-school-sub">밑그림</span>
+                </button>
+                <button type="button" onclick="selectPresetSketch('남자아이', '👦')" class="preset-card p-3 rounded-2xl border-3 border-slate-200 bg-white flex flex-col items-center gap-1 transition text-center">
+                  <span class="text-3xl">👦</span>
+                  <span class="text-xs font-bold text-school-ink">남자아이</span>
+                  <span class="text-[10px] text-school-sub">밑그림</span>
+                </button>
+                <button type="button" onclick="selectPresetSketch('여자아이', '👧')" class="preset-card p-3 rounded-2xl border-3 border-slate-200 bg-white flex flex-col items-center gap-1 transition text-center">
+                  <span class="text-3xl">👧</span>
+                  <span class="text-xs font-bold text-school-ink">여자아이</span>
+                  <span class="text-[10px] text-school-sub">밑그림</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2단계 -->
+          <div id="panelStep2" class="step-panel hidden space-y-5">
+            <div class="text-center space-y-1">
+              <span class="text-xs font-bold text-school-purple bg-school-purpleLight px-3 py-1 rounded-full border border-school-purpleBorder">2단계</span>
+              <h2 class="text-2xl font-cute text-school-ink">어떤 옷을 입혀볼까요?</h2>
+              <p class="text-sm text-school-sub font-medium">내 그림 속 주인공에게 멋진 옷과 특별한 장식을 입혀줘요!</p>
+            </div>
+
+            <div class="p-3.5 bg-school-purpleLight rounded-2xl border-2 border-school-purpleBorder flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span id="currentSubjectIcon" class="text-2xl">🐶</span>
+                <div>
+                  <span class="text-[11px] font-bold text-school-sub block">내 그림 속 주인공:</span>
+                  <span id="currentSubjectName" class="text-sm font-cute text-school-purple">강아지</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <input type="text" id="customSubjectInput" placeholder="이름 바꾸기" 
+                  class="w-28 sm:w-36 px-2.5 py-1.5 text-xs rounded-xl border border-slate-300 focus:border-school-purple focus:outline-none bg-white font-medium"
+                  oninput="setCustomSubject(this.value)">
+              </div>
+            </div>
+
+            <div class="space-y-2.5 pt-2">
+              <label class="text-xs font-bold text-school-ink flex items-center justify-between">
+                <span class="flex items-center gap-1">
+                  <i class="fa-solid fa-shirt text-school-mint"></i> 어떤 옷이나 장식을 입혀줄까요?
+                </span>
+                <span class="text-[11px] text-school-mint font-semibold">하나 콕 골라보세요!</span>
+              </label>
+              
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="featureChips"></div>
+
+              <div class="pt-1.5">
+                <div class="relative">
+                  <input type="text" id="customFeatureInput" placeholder="직접 써보기 (예: 무지개 망토, 반짝이 장화, 공룡 잠옷)" 
+                    class="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-300 focus:border-school-mint focus:outline-none text-xs sm:text-sm font-medium"
+                    oninput="setCustomFeature(this.value)">
+                  <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-school-mint font-bold bg-school-mintLight px-2 py-0.5 rounded-md">직접 입력</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3단계 -->
+          <div id="panelStep3" class="step-panel hidden space-y-5">
+            <div class="text-center space-y-1">
+              <span class="text-xs font-bold text-school-mint bg-school-mintLight px-3 py-1 rounded-full border border-school-mintBorder">3단계</span>
+              <h2 class="text-2xl font-cute text-school-ink">무엇을 하고 있나요?</h2>
+              <p class="text-sm text-school-sub font-medium">재미있는 행동이나 표정을 골라요!</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="actionChips"></div>
+
+            <div class="pt-1">
+              <div class="relative">
+                <input type="text" id="customActionInput" placeholder="직접 써보기 (예: 신나게 방방이를 타는)" 
+                  class="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-300 focus:border-school-mint focus:outline-none text-xs sm:text-sm font-medium"
+                  oninput="setCustomAction(this.value)">
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-school-mint font-bold bg-school-mintLight px-2 py-0.5 rounded-md">직접 입력</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4단계 -->
+          <div id="panelStep4" class="step-panel hidden space-y-5">
+            <div class="text-center space-y-1">
+              <span class="text-xs font-bold text-school-lavender bg-school-lavenderLight px-3 py-1 rounded-full border border-school-lavenderBorder">4단계</span>
+              <h2 class="text-2xl font-cute text-school-ink">여기는 어디인가요?</h2>
+              <p class="text-sm text-school-sub font-medium">상상 속 멋진 장소를 배경으로 골라보세요!</p>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="placeChips"></div>
+
+            <div class="pt-1">
+              <div class="relative">
+                <input type="text" id="customPlaceInput" placeholder="직접 써보기 (예: 눈 내리는 마을)" 
+                  class="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-300 focus:border-school-lavender focus:outline-none text-xs sm:text-sm font-medium"
+                  oninput="setCustomPlace(this.value)">
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-school-lavender font-bold bg-school-lavenderLight px-2.5 py-0.5 rounded-md">직접 입력</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5단계 -->
+          <div id="panelStep5" class="step-panel hidden space-y-5">
+            <div class="text-center space-y-1.5">
+              <div class="w-14 h-14 mx-auto rounded-full bg-purple-100/90 text-school-purple flex items-center justify-center text-2xl shadow-sm mb-1">
+                <i class="fa-solid fa-palette"></i>
+              </div>
+              <h2 class="text-2xl sm:text-3xl font-cute text-school-ink">
+                어떤 그림 느낌(스타일)로 바꿀까요?
+              </h2>
+              <p class="text-xs sm:text-sm text-school-sub font-medium">
+                초등학생 친구들이 가장 좋아하는 6가지 예시 그림 중 하나를 콕 골라보세요!
+              </p>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4.5 pt-1" id="styleChips"></div>
+          </div>
+
+          <!-- 6단계 -->
+          <div id="panelStep6" class="step-panel hidden space-y-5">
+            <div class="text-center space-y-1">
+              <span class="text-xs font-bold text-school-purple bg-school-purpleLight px-3 py-1 rounded-full border border-school-purpleBorder">마지막 단계</span>
+              <h2 class="text-2xl font-cute text-school-ink">주문서가 모두 완성되었어요!</h2>
+              <p class="text-sm text-school-sub font-medium">아래 버튼을 누르면 AI가 그림을 멋지게 그려줍니다 ✨</p>
+            </div>
+
+            <div class="bg-slate-50 rounded-3xl p-6 border-3 border-slate-200 text-center">
+              
+              <div id="beforeGenBox" class="py-6 space-y-4">
+                <div class="w-20 h-20 mx-auto bg-white rounded-2xl border-3 border-slate-300 flex items-center justify-center text-4xl shadow-sm">
+                  🎨
+                </div>
+                <div>
+                  <p class="font-cute text-xl text-school-ink">그릴 준비가 되었나요?</p>
+                  <p class="text-xs text-school-sub mt-1">내가 고른 재료들이 모여 멋진 작품으로 탄생해요!</p>
+                </div>
+                
+                <button type="button" onclick="generateAIArtwork()" id="btnStartGenerate" class="px-8 py-4 rounded-2xl bg-school-purple hover:bg-school-purpleHover text-white font-cute text-2xl tracking-wide shadow-flat-purple transition active:translate-y-1 active:shadow-none flex items-center gap-2 mx-auto">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                  <span>AI로 그림 그리기!</span>
+                </button>
+              </div>
+
+              <div id="duringGenBox" class="hidden py-8 space-y-4">
+                <div class="w-16 h-16 mx-auto rounded-full border-4 border-slate-200 border-t-school-purple animate-spin"></div>
+                <div>
+                  <h3 id="loadingPhrase" class="text-lg font-cute text-school-purple animate-pulse">
+                    AI가 스케치북에 마법을 부리는 중이에요...! 🎨
+                  </h3>
+                  <p class="text-xs text-school-sub mt-1">잠시만 기다려주세요. 약 5~10초 정도 걸려요!</p>
+                </div>
+              </div>
+
+              <div id="afterGenBox" class="hidden space-y-4">
+                <div id="promptChangedNotice" class="hidden p-3 bg-school-mintLight rounded-2xl border-2 border-school-mint text-xs text-school-ink font-bold flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base animate-pulse">✏️</span>
+                    <span>주문서 내용이 수정되었어요! 새 그림으로 다시 그려볼까요?</span>
+                  </div>
+                  <span class="text-[11px] bg-school-mint text-white font-extrabold px-2.5 py-0.5 rounded-lg shadow-sm">수정됨 ✨</span>
+                </div>
+
+                <div class="relative max-w-xs mx-auto rounded-2xl overflow-hidden border-4 border-white shadow-lg bg-slate-900 group cursor-pointer" onclick="openCurrentGeneratedModal()" title="클릭해서 크게 보기">
+                  <img id="generatedArtworkImg" src="" alt="완성된 그림" class="w-full aspect-square object-cover transition duration-300 group-hover:scale-105">
+                  <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition duration-200 text-white font-cute text-sm gap-1.5 pointer-events-none">
+                    <i class="fa-solid fa-magnifying-glass-plus text-2xl"></i>
+                    <span>클릭하면 크게 보여요! 🔍</span>
+                  </div>
+                  <span class="absolute bottom-2.5 right-2.5 bg-black/60 text-white text-[11px] font-bold px-2 py-0.5 rounded-lg pointer-events-none flex items-center gap-1 shadow">
+                    <i class="fa-solid fa-expand"></i> 크게 보기
+                  </span>
+                </div>
+
+                <div class="space-y-2.5">
+                  <button type="button" onclick="generateAIArtwork()" id="btnRegenerate" class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-school-purple hover:bg-school-purpleHover text-white font-cute text-lg shadow-flat-purple transition active:translate-y-1 active:shadow-none flex items-center justify-center gap-2 mx-auto">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span id="regenerateBtnText">바뀐 주문서로 새로 그리기! ✨</span>
+                  </button>
+
+                  <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
+                    <button type="button" onclick="downloadCurrentArtwork()" class="px-3.5 py-2 rounded-xl bg-school-ink hover:bg-black text-white font-bold text-xs sm:text-sm shadow-sm flex items-center gap-1.5 transition">
+                      <i class="fa-solid fa-download"></i> 내 컴퓨터에 저장
+                    </button>
+                    <button type="button" onclick="shareToGallery()" id="btnShareGallery" class="px-3.5 py-2 rounded-xl bg-school-mint hover:bg-school-mintHover text-white font-bold text-xs sm:text-sm shadow-sm flex items-center gap-1.5 transition">
+                      <i class="fa-solid fa-heart"></i> 갤러리에 자랑하기
+                    </button>
+                    <button type="button" onclick="goToStep(1)" class="px-3 py-2 rounded-xl bg-white border-2 border-slate-300 text-school-sub font-bold text-xs sm:text-sm hover:bg-slate-50 transition">
+                      <i class="fa-solid fa-rotate-left"></i> 처음부터 다시
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t-2 border-slate-200 flex items-center justify-between">
+            <button type="button" id="btnPrevStep" onclick="prevStep()" class="px-4 py-2 rounded-xl border-2 border-slate-300 text-school-sub text-xs sm:text-sm font-bold flex items-center gap-1.5 transition opacity-50 cursor-not-allowed" disabled>
+              <i class="fa-solid fa-arrow-left"></i> 이전 단계
+            </button>
+
+            <button type="button" id="btnNextStep" onclick="nextStep()" class="px-5 py-2.5 rounded-xl bg-school-purple hover:bg-school-purpleHover text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-flat-purple transition active:translate-y-1 active:shadow-none">
+              <span>다음 단계로</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- 프롬프트 블록 조립기 -->
+        <div class="lg:col-span-5 bg-white rounded-3xl p-6 border-4 border-slate-200 shadow-flat-paper sticky top-28 space-y-5">
+          
+          <div class="flex items-center justify-between pb-3 border-b-2 border-slate-200">
+            <span class="font-cute text-lg text-school-ink flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-school-purple"></span>
+              프롬프트 조립기 🧩
+            </span>
+            <button onclick="resetBuilder()" class="text-xs font-bold text-school-sub hover:text-school-purple transition">
+              <i class="fa-solid fa-arrow-rotate-right mr-0.5"></i> 비우기
+            </button>
+          </div>
+
+          <div>
+            <h3 class="text-xs font-bold text-school-ink mb-2">내가 모은 재료들:</h3>
+            <div id="selectedChipsContainer" class="flex flex-wrap gap-1.5">
+              <span class="text-xs text-school-sub py-1.5 px-3 bg-slate-100 rounded-xl border-2 border-dashed border-slate-300">
+                왼쪽에서 고르면 여기에 쏙 모여요! ✨
+              </span>
+            </div>
+          </div>
+
+          <div class="space-y-3 pt-3 border-t-2 border-slate-200">
+            <div class="flex items-center justify-between">
+              <h3 class="font-cute text-base text-school-ink flex items-center gap-1.5">
+                <i class="fa-solid fa-quote-left text-school-mint"></i> 완성된 AI 주문서
+              </h3>
+              <button onclick="copyPromptToClipboard()" class="text-xs px-2.5 py-1.5 rounded-lg bg-school-mint text-white font-bold hover:bg-school-mintHover transition shadow-sm">
+                <i class="fa-regular fa-copy"></i> 복사
+              </button>
+            </div>
+
+            <div class="bg-slate-50 rounded-2xl p-4 border-2 border-slate-300 text-sm leading-8 text-school-ink font-semibold">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span id="slotSketch" class="slot-empty-bullet px-2.5 py-0.5 rounded-xl text-xs">○ 어떤 그림</span>
+                <span>속</span>
+                <span id="slotSubject" class="slot-empty-bullet px-2.5 py-0.5 rounded-xl text-xs">○ 누구</span>
+                <span>이(가)</span>
+                <span id="slotFeature" class="slot-empty-bullet px-2.5 py-0.5 rounded-xl text-xs">○ 옷이나 장식</span>
+                <span>을(를) 입은,</span>
+                <span id="slotPlace" class="slot-empty-bullet px-2.5 py-0.5 rounded-xl text-xs">○ 어디에서</span>
+                <span id="slotAction" class="slot-empty-bullet px-2.5 py-0.5 rounded-xl text-xs">○ 무엇을 하고</span>
+                <span>있는 모습을,</span>
+                <span id="slotStyle" class="slot-empty-bullet px-2.5 py-0.5 rounded-xl text-xs">○ 어떤 느낌으로</span>
+                <span>멋지게 그려줘!</span>
+              </div>
+            </div>
+
+            <div class="p-3 bg-school-mintLight rounded-xl border-2 border-school-mintBorder text-xs text-school-ink flex items-center gap-2">
+              <span class="text-lg">💡</span>
+              <p><strong>선생님 팁:</strong> 멋진 단어를 많이 고를수록 내가 상상한 모습과 더 똑같이 그려져요!</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- VIEW 2: 우리 반 갤러리 -->
+    <section id="viewGallery" class="hidden space-y-6">
+      
+      <div class="bg-white rounded-3xl p-6 border-4 border-slate-200 shadow-flat-paper flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🖼️</span>
+            <h2 class="text-2xl font-cute text-school-ink">우리 반 상상 갤러리</h2>
+          </div>
+          <p class="text-xs sm:text-sm text-school-sub mt-1">친구들이 완성한 그림을 구경하고, 예쁜 응원 하트를 눌러주세요!</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <select id="galleryFilterSelect" onchange="filterGalleryItems(this.value)" class="px-3 py-2 rounded-xl bg-slate-50 border-2 border-slate-300 text-xs sm:text-sm font-bold text-school-ink focus:outline-none">
+            <option value="all">전체 그림 보기</option>
+            <option value="my">내 그림만 보기</option>
+            <option value="popular">인기 많은 순</option>
+          </select>
+
+          <button onclick="navigateTo('workshop')" class="px-3.5 py-2 rounded-xl bg-school-purple hover:bg-school-purpleHover text-white font-cute text-sm shadow-flat-purple transition">
+            <i class="fa-solid fa-plus"></i> 나도 그리기
+          </button>
+        </div>
+      </div>
+
+      <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+
+      <div id="emptyGalleryNotice" class="hidden bg-white rounded-3xl p-10 text-center border-3 border-dashed border-slate-300">
+        <div class="text-4xl mb-2">🎨</div>
+        <h4 class="font-cute text-lg text-school-ink">아직 올라온 그림이 없어요!</h4>
+        <p class="text-xs text-school-sub mb-3">가장 먼저 그림을 완성해 첫 번째 주인공이 되어보세요!</p>
+        <button onclick="navigateTo('workshop')" class="px-4 py-2 rounded-xl bg-school-mint text-white font-cute text-sm shadow-flat-mint">
+          첫 그림 그리러 가기!
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- 학생 간편 로그인 모달 -->
+  <div id="loginModal" class="fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border-4 border-slate-300 max-w-sm w-full p-6 text-center space-y-5 shadow-2xl relative">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-school-purple text-white flex items-center justify-center text-3xl shadow-flat-purple">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+      </div>
+
+      <div>
+        <span class="text-[11px] font-black tracking-wider text-school-mint uppercase bg-school-mintLight px-2.5 py-0.5 rounded-full border border-school-mintBorder">
+          WELCOME TO CLASS!
+        </span>
+        <h3 class="text-2xl font-cute text-school-ink mt-1.5">
+          우리들의 AI 창작소
+        </h3>
+        <p class="text-xs text-school-sub mt-1">이름과 수업 비밀번호를 적고 입장해요!</p>
+      </div>
+
+      <div class="space-y-3 text-left">
+        <div>
+          <label class="block text-xs font-bold text-school-ink mb-1">
+            <i class="fa-solid fa-user text-school-purple mr-1"></i> 학생 이름
+          </label>
+          <input type="text" id="inputStudentName" placeholder="예: 3학년 김새싹" value="3학년 김새싹"
+            class="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-300 focus:border-school-purple focus:outline-none text-xs sm:text-sm font-semibold">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-school-ink mb-1">
+            <i class="fa-solid fa-key text-school-mint mr-1"></i> 오늘의 비밀번호
+          </label>
+          <input type="password" id="inputClassCode" placeholder="칠판에 적힌 번호 (1234)" value="1234"
+            class="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-300 focus:border-school-mint focus:outline-none text-xs sm:text-sm font-semibold">
+        </div>
+      </div>
+
+      <button type="button" onclick="submitLogin()" class="w-full py-3.5 rounded-2xl bg-school-purple hover:bg-school-purpleHover text-white font-cute text-xl shadow-flat-purple transition active:translate-y-1 active:shadow-none">
+        🎨 창작소 입장하기!
+      </button>
+
+      <p class="text-[11px] text-school-sub font-semibold">
+        비밀번호는 선생님께 여쭤보세요 (기본: 1234) 📌
+      </p>
+    </div>
+  </div>
+
+  <!-- 그림 크게보기 모달 -->
+  <div id="imageDetailModal" class="hidden fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden border-4 border-slate-300 shadow-2xl flex flex-col max-h-[90vh]">
+      
+      <div class="p-3.5 border-b-2 border-slate-200 flex items-center justify-between bg-slate-50">
+        <h4 id="modalArtworkAuthor" class="font-cute text-base text-school-ink">작품 크게보기</h4>
+        <button onclick="closeDetailModal()" class="w-7 h-7 rounded-lg bg-white border border-slate-300 text-school-sub flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-3 bg-slate-950 flex items-center justify-center">
+        <img id="modalArtworkImg" src="" alt="작품 크게보기" class="max-h-[60vh] max-w-full rounded-lg object-contain shadow-2xl">
+      </div>
+
+      <div class="p-4 space-y-3 bg-white">
+        <div>
+          <label class="text-[11px] font-bold text-school-purple block mb-1">사용된 마법 주문</label>
+          <p id="modalArtworkPrompt" class="text-xs text-school-ink bg-slate-50 p-2.5 rounded-xl border border-slate-200 font-medium"></p>
+        </div>
+
+        <div class="flex items-center justify-between pt-1 border-t border-slate-200">
+          <button id="modalLikeBtn" onclick="toggleModalLike()" class="px-3 py-1.5 rounded-xl bg-school-lavenderLight text-school-purple font-bold text-xs flex items-center gap-1 border border-school-lavenderBorder">
+            <i class="fa-solid fa-heart"></i>
+            <span>응원 하트 <strong id="modalLikeCount">0</strong></span>
+          </button>
+
+          <button onclick="downloadDetailImage()" class="px-3.5 py-1.5 rounded-xl bg-school-ink text-white font-bold text-xs flex items-center gap-1">
+            <i class="fa-solid fa-download"></i> 컴퓨터에 저장
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 토스트 알림 -->
+  <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-school-ink text-white shadow-xl text-xs sm:text-sm font-bold border-2 border-slate-600">
+    <span id="toastIcon" class="text-base text-school-mint"></span>
+    <span id="toastMessage">알림 내용</span>
+  </div>
+
+  <script>
+    // ⚠️ 1단계에서 복사한 Google Apps Script 웹 앱 URL을 여기에 붙여넣으세요!
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxNoVUa2ohxBkUOJ7sRVcFaJTrFwhpiYJHNhi74lC7PnYJOa7OX6xIGpjwpTBOUN0hf/exec";
+
+    const SIMPLE_PROMPTS = {
+      features: [
+        { label: "신비한 마법사 망토", icon: "🧙" },
+        { label: "멋진 우주복", icon: "🧑‍🚀" },
+        { label: "천사 날개", icon: "🪽" },
+        { label: "반짝이는 황금 왕관", icon: "👑" },
+        { label: "포근한 무지개 니트", icon: "🧶" },
+        { label: "슈퍼히어로 가면과 망토", icon: "🦸" },
+        { label: "알록달록 파티 꼬깔모자", icon: "🎉" },
+        { label: "노란 병아리 책가방", icon: "🎒" },
+        { label: "개구쟁이 선글라스", icon: "🕶️" },
+      ],
+      actions: [
+        { label: "생일 케이크 촛불 끄는", icon: "🎂" },
+        { label: "썰매를 쌩쌩 타는", icon: "🛷" },
+        { label: "맛있는 도넛을 냠냠 먹는", icon: "🍩" },
+        { label: "신나게 기타 치며 노래하는", icon: "🎸" },
+        { label: "돋보기로 꽃을 관찰하는", icon: "🔍" },
+        { label: "풍선 타고 하늘을 둥둥 나는", icon: "🎈" },
+        { label: "망원경으로 별을 찾는", icon: "🔭" },
+        { label: "스케이트보드를 씽씽 타는", icon: "🛹" },
+      ],
+      places: [
+        { label: "별이 쏟아지는 우주", icon: "🌌" },
+        { label: "달콤한 사탕 마을", icon: "🍭" },
+        { label: "푸른 바닷속 산호초", icon: "🐠" },
+        { label: "버섯 요정의 숲속", icon: "🍄" },
+        { label: "폭신폭신 구름 위", icon: "🌈" },
+        { label: "따뜻한 벽난로 방", icon: "🪵" },
+        { label: "햇살 가득 학교 운동장", icon: "🏫" },
+        { label: "눈 내리는 크리스마스 마을", icon: "❄️" },
+      ],
+      styles: [
+        { 
+          label: "3D 만화 스타일", 
+          imgUrl: "https://images.unsplash.com/photo-1563089145-599997674d42?w=500&auto=format&fit=crop&q=80",
+          promptKeyword: "3D Pixar Disney animated movie style, adorable cute 3D character, cinematic lighting, cheerful friendly expression", 
+          icon: "🎬" 
+        },
+        { 
+          label: "따스한 만화 스타일", 
+          imgUrl: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=500&auto=format&fit=crop&q=80",
+          promptKeyword: "Studio Ghibli aesthetic anime art style, nostalgic warm cozy hand-drawn animation, scenic blue sky and green hills", 
+          icon: "🍃" 
+        },
+        { 
+          label: "스티커 스타일", 
+          imgUrl: "https://images.unsplash.com/photo-1572375992501-4b0892d50c69?w=500&auto=format&fit=crop&q=80",
+          promptKeyword: "cute die-cut sticker design with crisp thick white outline border, adorable kawaii pastel flat vector sticker", 
+          icon: "⭐" 
+        },
+        { 
+          label: "수채화 스타일", 
+          imgUrl: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=500&auto=format&fit=crop&q=80",
+          promptKeyword: "soft watercolor painting on textured fine art paper, gentle pigment bleed, sunny Mediterranean village scenery, delicate pastel brushstrokes", 
+          icon: "🎨" 
+        },
+        { 
+          label: "피규어 스타일", 
+          imgUrl: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=500&auto=format&fit=crop&q=80",
+          promptKeyword: "chibi cute collectible vinyl toy figurine on acrylic stand, miniature desktop 3D figure, smooth plastic texture, macro product photography", 
+          icon: "🤖" 
+        },
+        { 
+          label: "일러스트 스타일", 
+          imgUrl: "https://images.unsplash.com/photo-1582561424760-0321d75e81fa?w=500&auto=format&fit=crop&q=80",
+          promptKeyword: "warm cozy children storybook illustration, soft colored pencil and gouache texture, sweet pastel atmosphere, cute storybook art", 
+          icon: "✏️" 
+        },
+      ]
+    };
+
+    const state = {
+      currentUser: "3학년 김새싹",
+      remainingGenerations: 5,
+      quotaClickCount: 0,
+      currentStep: 1,
+      totalSteps: 6,
+      selectedItems: {
+        sketchName: "스케치북 밑그림",
+        sketchIcon: "🐶",
+        sketchDataUrl: null,
+        subject: "강아지",
+        feature: null,
+        action: null,
+        place: null,
+        style: null,
+      },
+      currentGeneratedImage: null,
+      lastGeneratedPrompt: null,
+      galleryItems: [],
+      activeModalArtId: null,
+    };
+
+    window.onload = function() {
+      loadGalleryFromGoogleSheets();
+      renderAllChips();
+      updateSubjectBadgeUI(state.selectedItems.subject, state.selectedItems.sketchIcon);
+      updateLivePromptUI();
+      openLoginModal();
+    };
+
+    // 💡 시트에서 전체 학생의 작품 목록 조회
+    async function loadGalleryFromGoogleSheets() {
+      if (!GAS_URL || GAS_URL.includes("여기에_웹_앱_URL")) return;
+
+      try {
+        const res = await fetch(GAS_URL);
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          state.galleryItems = data.map(item => ({
+            ...item,
+            likedByMe: false,
+            isMyArt: item.author.includes(state.currentUser)
+          }));
+          renderGallery();
+          updateGalleryCountBadge();
+        }
+      } catch (e) {
+        console.warn("갤러리 불러오기 실패:", e);
+      }
+    }
+
+    function renderAllChips() {
+      const featEl = document.getElementById('featureChips');
+      featEl.innerHTML = SIMPLE_PROMPTS.features.map(f => `
+        <button type="button" onclick="selectItem('feature', '${f.label}')" data-category="feature" data-val="${f.label}"
+          class="chip-item p-2.5 rounded-2xl border-2 border-slate-200 hover:border-school-mint bg-white text-left flex items-center gap-2">
+          <span class="text-xl">${f.icon}</span>
+          <span class="text-xs font-bold text-school-ink">${f.label}</span>
+        </button>
+      `).join('');
+
+      const actEl = document.getElementById('actionChips');
+      actEl.innerHTML = SIMPLE_PROMPTS.actions.map(a => `
+        <button type="button" onclick="selectItem('action', '${a.label}')" data-category="action" data-val="${a.label}"
+          class="chip-item p-3 rounded-2xl border-2 border-slate-200 hover:border-school-mint bg-white text-left flex items-center gap-2.5">
+          <span class="text-2xl">${a.icon}</span>
+          <span class="text-xs font-bold text-school-ink">${a.label}</span>
+        </button>
+      `).join('');
+
+      const placeEl = document.getElementById('placeChips');
+      placeEl.innerHTML = SIMPLE_PROMPTS.places.map(p => `
+        <button type="button" onclick="selectItem('place', '${p.label}')" data-category="place" data-val="${p.label}"
+          class="chip-item p-2.5 rounded-2xl border-2 border-slate-200 hover:border-school-lavender bg-white text-left flex items-center gap-2">
+          <span class="text-xl">${p.icon}</span>
+          <span class="text-xs font-bold text-school-ink">${p.label}</span>
+        </button>
+      `).join('');
+
+      const styleEl = document.getElementById('styleChips');
+      styleEl.innerHTML = SIMPLE_PROMPTS.styles.map(st => `
+        <button type="button" onclick="selectItem('style', '${st.label}')" data-category="style" data-val="${st.label}"
+          class="chip-item p-3 sm:p-4 rounded-3xl border-2 border-slate-200 hover:border-school-purple bg-white flex flex-col items-center gap-3 transition text-center shadow-sm hover:shadow-md group cursor-pointer">
+          <div class="w-full aspect-square rounded-2xl overflow-hidden bg-slate-100 relative shadow-inner">
+            <img src="${st.imgUrl}" alt="${st.label}" 
+                 onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'w-full h-full flex flex-col items-center justify-center text-4xl bg-purple-50 text-school-purple\\'>${st.icon}</div>';"
+                 class="w-full h-full object-cover transition duration-300 group-hover:scale-105">
+            <div class="selected-check absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-school-purple text-white flex items-center justify-center text-xs shadow-md hidden">
+              <i class="fa-solid fa-check"></i>
+            </div>
+          </div>
+          <span class="style-title text-sm sm:text-base font-bold text-school-ink font-cute group-hover:text-school-purple transition tracking-tight">
+            ${st.label}
+          </span>
+        </button>
+      `).join('');
+    }
+
+    function updateSubjectBadgeUI(name, icon) {
+      const iconEl = document.getElementById('currentSubjectIcon');
+      const nameEl = document.getElementById('currentSubjectName');
+      const inputEl = document.getElementById('customSubjectInput');
+      if (iconEl && icon) iconEl.textContent = icon;
+      if (nameEl && name) nameEl.textContent = name;
+      if (inputEl && name && document.activeElement !== inputEl) inputEl.value = name;
+    }
+
+    function setCustomSubject(val) {
+      const trimmed = val.trim();
+      state.selectedItems.subject = trimmed || "주인공";
+      const nameEl = document.getElementById('currentSubjectName');
+      if (nameEl) nameEl.textContent = trimmed || "주인공";
+      updateLivePromptUI();
+    }
+
+    function handleFileUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        state.selectedItems.sketchDataUrl = dataUrl;
+        state.selectedItems.sketchName = "내 스케치북 사진";
+        state.selectedItems.sketchIcon = "📷";
+
+        document.getElementById('uploadPreviewImg').src = dataUrl;
+        document.getElementById('uploadPlaceholder').classList.add('hidden');
+        document.getElementById('uploadPreviewBox').classList.remove('hidden');
+
+        document.querySelectorAll('.preset-card').forEach(btn => {
+          btn.className = "preset-card p-3 rounded-2xl border-3 border-slate-200 bg-white flex flex-col items-center gap-1 transition text-center";
+        });
+
+        updateSubjectBadgeUI(state.selectedItems.subject, "📷");
+        updateLivePromptUI();
+        showToast('스케치북 사진을 성공적으로 올렸어요! 📸', 'success');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeUploadedSketch(event) {
+      if (event) event.stopPropagation();
+      state.selectedItems.sketchDataUrl = null;
+      state.selectedItems.sketchName = "스케치북 밑그림";
+      state.selectedItems.sketchIcon = "🐶";
+      state.selectedItems.subject = "강아지";
+
+      document.getElementById('sketchUploadInput').value = "";
+      document.getElementById('uploadPlaceholder').classList.remove('hidden');
+      document.getElementById('uploadPreviewBox').classList.add('hidden');
+
+      selectPresetSketch('강아지', '🐶');
+      showToast('사진이 지워졌어요. 기본 밑그림으로 돌아왔어요!', 'info');
+    }
+
+    function selectItem(category, value) {
+      state.selectedItems[category] = value;
+
+      const colorMap = {
+        subject: 'border-school-purple bg-school-purpleLight text-school-purple font-bold',
+        feature: 'border-school-mint bg-school-mintLight text-school-mint font-bold',
+        action: 'border-school-mint bg-school-mintLight text-school-mint font-bold',
+        place: 'border-school-lavender bg-school-lavenderLight text-school-purple font-bold',
+      };
+
+      document.querySelectorAll(`[data-category="${category}"]`).forEach(btn => {
+        const isMatch = btn.getAttribute('data-val') === value;
+
+        if (category === 'style') {
+          if (isMatch) {
+            btn.className = "chip-item p-3 sm:p-4 rounded-3xl border-3 border-school-purple bg-purple-50/70 ring-4 ring-school-purple/20 flex flex-col items-center gap-3 transition text-center shadow-md scale-[1.02] cursor-pointer";
+            const check = btn.querySelector('.selected-check');
+            if (check) check.classList.remove('hidden');
+            const label = btn.querySelector('.style-title');
+            if (label) label.className = "style-title text-sm sm:text-base font-extrabold text-school-purple font-cute tracking-tight";
+          } else {
+            btn.className = "chip-item p-3 sm:p-4 rounded-3xl border-2 border-slate-200 hover:border-school-purple bg-white flex flex-col items-center gap-3 transition text-center shadow-sm hover:shadow-md group cursor-pointer";
+            const check = btn.querySelector('.selected-check');
+            if (check) check.classList.add('hidden');
+            const label = btn.querySelector('.style-title');
+            if (label) label.className = "style-title text-sm sm:text-base font-bold text-school-ink font-cute group-hover:text-school-purple transition tracking-tight";
+          }
+        } else {
+          if (isMatch) {
+            btn.className = `chip-item p-2.5 rounded-2xl border-3 ${colorMap[category]} text-left flex items-center gap-2 shadow-sm`;
+          } else {
+            btn.className = `chip-item p-2.5 rounded-2xl border-2 border-slate-200 bg-white text-left flex items-center gap-2`;
+          }
+        }
+      });
+
+      updateLivePromptUI();
+    }
+
+    function selectPresetSketch(name, icon) {
+      state.selectedItems.sketchName = "스케치북 밑그림";
+      state.selectedItems.sketchIcon = icon;
+      state.selectedItems.sketchDataUrl = null;
+      state.selectedItems.subject = name;
+
+      document.querySelectorAll('.preset-card').forEach(btn => {
+        if (btn.innerText.includes(name)) {
+          btn.className = "preset-card p-3 rounded-2xl border-3 border-school-purple bg-school-purpleLight flex flex-col items-center gap-1 transition text-center shadow-sm";
+        } else {
+          btn.className = "preset-card p-3 rounded-2xl border-3 border-slate-200 bg-white flex flex-col items-center gap-1 transition text-center";
+        }
+      });
+
+      document.getElementById('uploadPlaceholder').classList.remove('hidden');
+      document.getElementById('uploadPreviewBox').classList.add('hidden');
+      document.getElementById('sketchUploadInput').value = "";
+
+      updateSubjectBadgeUI(name, icon);
+      updateLivePromptUI();
+    }
+
+    function checkPromptModification() {
+      const noticeEl = document.getElementById('promptChangedNotice');
+      const regenTextEl = document.getElementById('regenerateBtnText');
+      if (!noticeEl || !regenTextEl) return;
+
+      const currentPrompt = assembleFullPrompt();
+      const isModified = state.lastGeneratedPrompt && (currentPrompt !== state.lastGeneratedPrompt);
+
+      if (isModified) {
+        noticeEl.classList.remove('hidden');
+        regenTextEl.textContent = "✨ 바뀐 주문서로 새로 그리기!";
+      } else {
+        noticeEl.classList.add('hidden');
+        regenTextEl.textContent = "🔄 다른 느낌으로 다시 그리기!";
+      }
+    }
+
+    function updateLivePromptUI() {
+      const s = state.selectedItems;
+
+      updateSlot('slotSketch', s.sketchName ? `● ${s.sketchName}` : '○ 어떤 그림', 'slot-filled-purple');
+      updateSlot('slotSubject', s.subject ? `● ${s.subject}` : '○ 누구', 'slot-filled-purple');
+      updateSlot('slotFeature', s.feature ? `● ${s.feature}` : '○ 옷이나 장식', 'slot-filled-mint');
+      updateSlot('slotPlace', s.place ? `● ${s.place}에서` : '○ 어디에서', 'slot-filled-lavender');
+      updateSlot('slotAction', s.action ? `● ${s.action}` : '○ 무엇을 하고', 'slot-filled-mint');
+      updateSlot('slotStyle', s.style ? `● ${s.style}` : '○ 어떤 느낌으로', 'slot-filled-sand');
+
+      const chipsBox = document.getElementById('selectedChipsContainer');
+      const items = [
+        s.sketchName ? { label: s.sketchName, color: 'bg-school-purpleLight text-school-purple border-school-purpleBorder' } : null,
+        s.subject ? { label: s.subject, color: 'bg-school-purpleLight text-school-purple border-school-purpleBorder' } : null,
+        s.feature ? { label: `${s.feature} 착용`, color: 'bg-school-mintLight text-school-mint border-school-mintBorder' } : null,
+        s.place ? { label: s.place, color: 'bg-school-lavenderLight text-school-purple border-school-lavenderBorder' } : null,
+        s.action ? { label: s.action, color: 'bg-school-mintLight text-school-mint border-school-mintBorder' } : null,
+        s.style ? { label: s.style, color: 'bg-school-sandLight text-school-sand border-school-sandBorder' } : null,
+      ].filter(Boolean);
+
+      if (items.length === 0) {
+        chipsBox.innerHTML = `
+          <span class="text-xs text-school-sub py-1.5 px-3 bg-slate-100 rounded-xl border-2 border-dashed border-slate-300">
+            왼쪽에서 고르면 여기에 쏙 모여요! ✨
+          </span>
+        `;
+      } else {
+        chipsBox.innerHTML = items.map(it => `
+          <span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-lg ${it.color} border">
+            <i class="fa-solid fa-check text-[10px]"></i>
+            ${it.label}
+          </span>
+        `).join('');
+      }
+
+      if (state.currentStep === 6 && state.currentGeneratedImage) {
+        checkPromptModification();
+      }
+    }
+
+    function setCustomFeature(val) {
+      if (val.trim()) selectItem('feature', val.trim());
+    }
+
+    function setCustomAction(val) {
+      if (val.trim()) selectItem('action', val.trim());
+    }
+
+    function setCustomPlace(val) {
+      if (val.trim()) selectItem('place', val.trim());
+    }
+
+    function updateSlot(id, text, filledClass) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = text;
+      const isFilled = text.startsWith('●');
+      if (isFilled) {
+        el.className = `px-2.5 py-0.5 rounded-xl text-xs ${filledClass} shadow-sm transition-all`;
+      } else {
+        el.className = 'slot-empty-bullet px-2.5 py-0.5 rounded-xl text-xs transition-all';
+      }
+    }
+
+    function assembleFullPrompt() {
+      const s = state.selectedItems;
+      const stylePart = s.style ? `${s.style}로, ` : "따뜻한 일러스트 스타일로, ";
+      const sketchPart = s.sketchName ? `[${s.sketchName}] 속 ` : "";
+      const subjectPart = s.subject ? `${s.subject}` : "귀여운 친구";
+      const featurePart = s.feature ? `이(가) [${s.feature}]을(를) 입은 채, ` : "이(가) ";
+      const placePart = s.place ? `${s.place}에서 ` : "상상 속 멋진 곳에서 ";
+      const actionPart = s.action ? `${s.action} 모습을 ` : "기분 좋게 웃고 있는 모습을 ";
+      const finishPart = "선명하고 예쁘게 그려줘!";
+
+      return `${stylePart}${sketchPart}${subjectPart}${featurePart}${placePart}${actionPart}${finishPart}`;
+    }
+
+    function copyPromptToClipboard() {
+      const prompt = assembleFullPrompt();
+      navigator.clipboard.writeText(prompt).then(() => {
+        showToast('주문서가 클립보드에 복사되었어요! 📋', 'success');
+      });
+    }
+
+    function resetBuilder() {
+      selectPresetSketch('강아지', '🐶');
+      state.selectedItems.feature = null;
+      state.selectedItems.action = null;
+      state.selectedItems.place = null;
+      state.selectedItems.style = null;
+      
+      document.querySelectorAll('[data-category="style"]').forEach(b => {
+        b.className = "chip-item p-3 sm:p-4 rounded-3xl border-2 border-slate-200 hover:border-school-purple bg-white flex flex-col items-center gap-3 transition text-center shadow-sm group cursor-pointer";
+        const check = b.querySelector('.selected-check');
+        if (check) check.classList.add('hidden');
+        const label = b.querySelector('.style-title');
+        if (label) label.className = "style-title text-sm sm:text-base font-bold text-school-ink font-cute group-hover:text-school-purple transition tracking-tight";
+      });
+
+      document.querySelectorAll('.chip-item:not([data-category="style"])').forEach(b => {
+        b.className = "chip-item p-2.5 rounded-2xl border-2 border-slate-200 bg-white text-left flex items-center gap-2";
+      });
+      
+      const subInput = document.getElementById('customSubjectInput');
+      const featInput = document.getElementById('customFeatureInput');
+      const actInput = document.getElementById('customActionInput');
+      const plcInput = document.getElementById('customPlaceInput');
+      if (subInput) subInput.value = "강아지";
+      if (featInput) featInput.value = "";
+      if (actInput) actInput.value = "";
+      if (plcInput) plcInput.value = "";
+
+      updateSubjectBadgeUI("강아지", "🐶");
+      updateLivePromptUI();
+      goToStep(1);
+      showToast('처음 상태로 깨끗이 비웠어요! 🧹', 'info');
+    }
+
+    function goToStep(step) {
+      if (step < 1 || step > state.totalSteps) return;
+      state.currentStep = step;
+
+      for (let i = 1; i <= state.totalSteps; i++) {
+        const panel = document.getElementById(`panelStep${i}`);
+        if (panel) {
+          panel.classList.toggle('hidden', i !== step);
+        }
+      }
+
+      if (step === 6 && state.currentGeneratedImage) {
+        checkPromptModification();
+      }
+
+      const activeColorMap = [
+        'border-school-purple bg-school-purple text-white',
+        'border-school-purple bg-school-purple text-white',
+        'border-school-mint bg-school-mint text-white',
+        'border-school-lavender bg-school-lavender text-white',
+        'border-school-sand bg-school-sand text-white',
+        'border-school-purple bg-school-purple text-white',
+      ];
+
+      for (let i = 1; i <= state.totalSteps; i++) {
+        const bubble = document.getElementById(`stepBubble${i}`);
+        const label = document.getElementById(`stepLabel${i}`);
+
+        if (i === step) {
+          bubble.className = `w-12 h-12 rounded-2xl flex items-center justify-center border-4 ${activeColorMap[i-1]} text-xl font-bold shadow-sm`;
+          label.className = "text-xs sm:text-sm font-bold text-school-ink font-cute";
+        } else if (i < step) {
+          bubble.className = "w-12 h-12 rounded-2xl flex items-center justify-center border-4 border-slate-300 bg-slate-200 text-school-ink text-xl font-bold";
+          label.className = "text-xs sm:text-sm font-bold text-school-sub font-cute";
+        } else {
+          bubble.className = "w-12 h-12 rounded-2xl flex items-center justify-center border-4 border-slate-300 bg-white text-school-sub text-xl font-bold";
+          label.className = "text-xs sm:text-sm font-semibold text-slate-400 font-cute";
+        }
+      }
+
+      const prevBtn = document.getElementById('btnPrevStep');
+      const nextBtn = document.getElementById('btnNextStep');
+
+      prevBtn.disabled = (step === 1);
+      prevBtn.classList.toggle('opacity-50', step === 1);
+      prevBtn.classList.toggle('cursor-not-allowed', step === 1);
+
+      nextBtn.innerHTML = (step === state.totalSteps)
+        ? `<span>그림 완성보기</span> <i class="fa-solid fa-crown"></i>`
+        : `<span>다음 단계로</span> <i class="fa-solid fa-arrow-right"></i>`;
+    }
+
+    function nextStep() {
+      if (state.currentStep < state.totalSteps) goToStep(state.currentStep + 1);
+    }
+    function prevStep() {
+      if (state.currentStep > 1) goToStep(state.currentStep - 1);
+    }
+
+    async function generateAIArtwork() {
+      if (state.remainingGenerations <= 0) {
+        showToast('오늘의 붓칠 횟수를 다 썼어요! 선생님께 문의하세요 👩‍🏫', 'error');
+        return;
+      }
+
+      document.getElementById('beforeGenBox').classList.add('hidden');
+      document.getElementById('duringGenBox').classList.remove('hidden');
+      document.getElementById('afterGenBox').classList.add('hidden');
+
+      const phrases = [
+        "AI가 스케치북에 마법을 부리는 중이에요...! ✨",
+        "주인공에게 예쁜 옷을 입히는 중이에요 🎨",
+        "신비로운 배경과 따뜻한 색을 칠하고 있어요 🌈",
+        "마지막 마법 가루를 솔솔 뿌리는 중이에요 🪄"
+      ];
+      let pIdx = 0;
+      const pInterval = setInterval(() => {
+        pIdx = (pIdx + 1) % phrases.length;
+        const el = document.getElementById('loadingPhrase');
+        if (el) el.textContent = phrases[pIdx];
+      }, 2500);
+
+      const fullPrompt = assembleFullPrompt();
+      const selectedStyleObj = SIMPLE_PROMPTS.styles.find(st => st.label === state.selectedItems.style);
+      const styleKeyword = selectedStyleObj ? ` Style description: ${selectedStyleObj.promptKeyword}.` : "";
+      const promptForAI = `${fullPrompt}${styleKeyword}`;
+
+      try {
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${apiKey}`;
+
+        let parts = [{ text: promptForAI }];
+
+        if (state.selectedItems.sketchDataUrl) {
+          const rawBase64 = state.selectedItems.sketchDataUrl.split(',')[1];
+          const mime = state.selectedItems.sketchDataUrl.split(';')[0].split(':')[1] || 'image/png';
+          parts = [
+            { text: `이 스케치를 바탕으로 다음 프롬프트를 깨끗하고 선명하게 완성해주세요: ${promptForAI}` },
+            { inlineData: { mimeType: mime, data: rawBase64 } }
+          ];
+        }
+
+        const payload = {
+          contents: [{ role: 'user', parts: parts }],
+          generationConfig: {
+            responseModalities: ['IMAGE'],
+            imageConfig: { aspectRatio: "1:1" }
+          },
+        };
+
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        clearInterval(pInterval);
+
+        if (!response.ok) throw new Error("API 요청 실패");
+
+        const result = await response.json();
+        const imagePart = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+
+        if (imagePart && imagePart.inlineData?.data) {
+          const imageUrl = `data:${imagePart.inlineData.mimeType || 'image/png'};base64,${imagePart.inlineData.data}`;
+          displayGeneratedResult(imageUrl);
+        } else {
+          generateSolidPosterFallback(fullPrompt);
+        }
+
+      } catch (err) {
+        clearInterval(pInterval);
+        console.warn("API 연결 대신 캔버스 그림을 생성합니다:", err);
+        generateSolidPosterFallback(fullPrompt);
+      }
+    }
+
+    function generateSolidPosterFallback(promptText) {
+      const cvs = document.createElement('canvas');
+      cvs.width = 600;
+      cvs.height = 600;
+      const ctx = cvs.getContext('2d');
+
+      ctx.fillStyle = '#FAF8F5';
+      ctx.fillRect(0, 0, 600, 600);
+
+      ctx.strokeStyle = '#E7E2D8';
+      ctx.lineWidth = 1.5;
+      for (let x = 0; x < 600; x += 30) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, 600);
+        ctx.stroke();
+      }
+      for (let y = 0; y < 600; y += 30) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(600, y);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = '#7C3AED';
+      ctx.beginPath();
+      ctx.roundRect(40, 40, 520, 70, 20);
+      ctx.fill();
+
+      ctx.font = 'bold 28px Jua, sans-serif';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('✨ 우리들의 AI 창작소 ✨', 300, 75);
+
+      ctx.font = '32px sans-serif';
+      ctx.fillText('✨', 80, 160);
+      ctx.fillText('🎨', 520, 160);
+      ctx.fillText('🐱', 100, 480);
+      ctx.fillText('🚀', 500, 480);
+
+      ctx.font = '140px sans-serif';
+      ctx.fillText(state.selectedItems.sketchIcon || '🧸', 300, 290);
+
+      ctx.font = 'bold 28px Jua, sans-serif';
+      ctx.fillStyle = '#262231';
+      ctx.fillText(`[ ${state.currentUser} ] 학생의 작품`, 300, 420);
+
+      ctx.font = 'bold 20px Pretendard, sans-serif';
+      ctx.fillStyle = '#0D9488';
+      const shortTitle = state.selectedItems.subject || "행복한 주인공";
+      ctx.fillText(`“${shortTitle}” in ${state.selectedItems.place || '상상 나라'}`, 300, 465);
+
+      const fallbackUrl = cvs.toDataURL('image/png');
+      displayGeneratedResult(fallbackUrl);
+      showToast('상상한 그림이 스케치북에 완성되었어요! 🎨', 'success');
+    }
+
+    function displayGeneratedResult(imgUrl) {
+      state.currentGeneratedImage = imgUrl;
+      state.lastGeneratedPrompt = assembleFullPrompt();
+      state.remainingGenerations = Math.max(0, state.remainingGenerations - 1);
+      updateQuotaDisplay();
+
+      document.getElementById('generatedArtworkImg').src = imgUrl;
+      document.getElementById('duringGenBox').classList.add('hidden');
+      document.getElementById('afterGenBox').classList.remove('hidden');
+
+      const noticeEl = document.getElementById('promptChangedNotice');
+      if (noticeEl) noticeEl.classList.add('hidden');
+
+      const regenTextEl = document.getElementById('regenerateBtnText');
+      if (regenTextEl) regenTextEl.textContent = "🔄 다른 느낌으로 다시 그리기!";
+
+      const shareBtn = document.getElementById('btnShareGallery');
+      shareBtn.disabled = false;
+      shareBtn.innerHTML = `<i class="fa-solid fa-heart"></i> 갤러리에 자랑하기`;
+      shareBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+      showToast('멋진 그림이 완성되었어요! 클릭하면 크게 볼 수 있어요 🔍', 'success');
+    }
+
+    function openCurrentGeneratedModal() {
+      if (!state.currentGeneratedImage) return;
+      state.activeModalArtId = null;
+      document.getElementById('modalArtworkAuthor').textContent = `${state.currentUser} 학생의 완성 작품 ✨`;
+      document.getElementById('modalArtworkImg').src = state.currentGeneratedImage;
+      document.getElementById('modalArtworkPrompt').textContent = assembleFullPrompt();
+      document.getElementById('modalLikeCount').textContent = "1";
+      document.getElementById('modalLikeBtn').className = "px-3 py-1.5 rounded-xl bg-school-purple text-white font-bold text-xs flex items-center gap-1";
+      document.getElementById('imageDetailModal').classList.remove('hidden');
+    }
+
+    function handleQuotaClick() {
+      state.quotaClickCount++;
+      if (state.quotaClickCount >= 3) {
+        state.quotaClickCount = 0;
+        const password = prompt("👩‍🏫 선생님 전용 기능입니다.\n충전 비밀번호를 입력해주세요 (기본: 1004)");
+        if (password === "2626") {
+          state.remainingGenerations += 5;
+          updateQuotaDisplay();
+          showToast(`선생님 파워! 붓칠 횟수가 5회 충전되었어요 🎨 (남은 횟수: ${state.remainingGenerations})`, 'success');
+        } else if (password !== null) {
+          showToast('비밀번호가 틀렸어요!', 'error');
+        }
+      }
+      setTimeout(() => { state.quotaClickCount = 0; }, 3000);
+    }
+
+    function updateQuotaDisplay() {
+      const el = document.getElementById('quotaCount');
+      if (el) el.textContent = state.remainingGenerations;
+    }
+
+    function downloadCurrentArtwork() {
+      if (!state.currentGeneratedImage) return;
+      downloadFile(state.currentGeneratedImage, `${state.currentUser}_AI그림.png`);
+      showToast('내 그림이 컴퓨터에 저장되었어요! 💾', 'success');
+    }
+
+    function downloadFile(url, name) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    // 💡 [핵심] 구글 시트 및 드라이브로 영구 저장 (POST)
+    async function shareToGallery() {
+      if (!state.currentGeneratedImage) return;
+
+      const shareBtn = document.getElementById('btnShareGallery');
+      shareBtn.disabled = true;
+      shareBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> 저장 중...`;
+
+      let fileBase64 = "";
+      if (state.currentGeneratedImage.startsWith("data:image")) {
+        fileBase64 = state.currentGeneratedImage.split(",")[1];
+      }
+
+      const payload = {
+        action: "create",
+        author: state.currentUser,
+        prompt: assembleFullPrompt(),
+        imgUrl: fileBase64 ? "" : state.currentGeneratedImage,
+        fileBase64: fileBase64
+      };
+
+      try {
+        if (GAS_URL && !GAS_URL.includes("여기에_웹_앱_URL")) {
+          await fetch(GAS_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+        }
+
+        const localArt = {
+          id: `art-${Date.now()}`,
+          author: state.currentUser,
+          prompt: assembleFullPrompt(),
+          likes: 1,
+          likedByMe: true,
+          imgUrl: state.currentGeneratedImage,
+          date: "방금 전",
+          isMyArt: true
+        };
+        state.galleryItems.unshift(localArt);
+        renderGallery();
+        updateGalleryCountBadge();
+
+        shareBtn.innerHTML = `<i class="fa-solid fa-check"></i> 갤러리에 등록 완료!`;
+        shareBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+        showToast('우리 반 갤러리에 멋지게 전시되었어요! 🎉', 'success');
+
+        setTimeout(loadGalleryFromGoogleSheets, 2000);
+
+      } catch (err) {
+        showToast('등록 중 문제가 발생했어요. 다시 시도해주세요.', 'error');
+        shareBtn.disabled = false;
+        shareBtn.innerHTML = `<i class="fa-solid fa-heart"></i> 갤러리에 자랑하기`;
+      }
+    }
+
+    function renderGallery(filter = 'all') {
+      const container = document.getElementById('galleryGrid');
+      const emptyNotice = document.getElementById('emptyGalleryNotice');
+      if (!container) return;
+
+      let items = [...state.galleryItems];
+
+      if (filter === 'my') {
+        items = items.filter(it => it.isMyArt || it.author.includes(state.currentUser));
+      } else if (filter === 'popular') {
+        items.sort((a, b) => b.likes - a.likes);
+      }
+
+      if (items.length === 0) {
+        container.innerHTML = "";
+        emptyNotice.classList.remove('hidden');
+        return;
+      }
+
+      emptyNotice.classList.add('hidden');
+      container.innerHTML = items.map(art => `
+        <div class="bg-white rounded-3xl overflow-hidden border-3 border-slate-200 shadow-flat-card transition hover:-translate-y-1 flex flex-col group">
+          <div class="relative aspect-square overflow-hidden bg-slate-100 cursor-pointer" onclick="openDetailModal('${art.id}')">
+            <img src="${art.imgUrl}" alt="${art.author}의 그림" class="w-full h-full object-cover">
+            ${art.isMyArt ? `
+              <span class="absolute top-2.5 left-2.5 bg-school-purple text-white text-[11px] font-cute px-2.5 py-0.5 rounded-full shadow">
+                내 그림 ⭐
+              </span>
+            ` : ''}
+          </div>
+
+          <div class="p-3.5 flex-1 flex flex-col justify-between space-y-2">
+            <div>
+              <div class="flex items-center justify-between">
+                <h4 class="font-cute text-sm text-school-ink flex items-center gap-1.5">
+                  <span class="w-5 h-5 rounded-full bg-school-mintLight text-school-mint flex items-center justify-center text-[10px]">
+                    <i class="fa-solid fa-user"></i>
+                  </span>
+                  ${art.author}
+                </h4>
+                <span class="text-[11px] text-school-sub">${art.date}</span>
+              </div>
+              <p class="text-xs text-school-sub mt-1.5 line-clamp-2 font-medium">
+                ${art.prompt}
+              </p>
+            </div>
+
+            <div class="pt-2 border-t border-slate-200 flex items-center justify-between">
+              <button onclick="toggleLike('${art.id}')" class="flex items-center gap-1 text-xs font-bold ${art.likedByMe ? 'text-school-purple' : 'text-school-sub hover:text-school-purple'} transition">
+                <i class="fa-solid fa-heart ${art.likedByMe ? 'text-school-purple scale-110' : ''}"></i>
+                <span>${art.likes}</span>
+              </button>
+
+              <button onclick="downloadFile('${art.imgUrl}', '${art.author}_그림.png')" class="text-xs text-school-sub hover:text-school-ink font-bold flex items-center gap-1">
+                <i class="fa-solid fa-download"></i> 저장
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterGalleryItems(val) {
+      renderGallery(val);
+    }
+
+    // 💡 [핵심] 좋아요 누를 때 구글 시트와 동기화
+    async function toggleLike(id) {
+      const art = state.galleryItems.find(a => a.id === id);
+      if (!art) return;
+
+      if (art.likedByMe) {
+        art.likes -= 1;
+        art.likedByMe = false;
+      } else {
+        art.likes += 1;
+        art.likedByMe = true;
+        showToast(`'${art.author}' 친구에게 하트를 보냈어요! ❤️`, 'info');
+      }
+
+      renderGallery(document.getElementById('galleryFilterSelect').value);
+      if (state.activeModalArtId === id) updateModalLikeUI(art);
+
+      if (GAS_URL && !GAS_URL.includes("여기에_웹_앱_URL")) {
+        fetch(GAS_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "updateLike", id: id, likes: art.likes })
+        }).catch(err => console.warn(err));
+      }
+    }
+
+    function updateGalleryCountBadge() {
+      const b = document.getElementById('galleryCountBadge');
+      if (b) b.textContent = state.galleryItems.length;
+    }
+
+    function openDetailModal(id) {
+      const art = state.galleryItems.find(a => a.id === id);
+      if (!art) return;
+
+      state.activeModalArtId = id;
+      document.getElementById('modalArtworkAuthor').textContent = `${art.author} 친구의 작품`;
+      document.getElementById('modalArtworkImg').src = art.imgUrl;
+      document.getElementById('modalArtworkPrompt').textContent = art.prompt;
+
+      updateModalLikeUI(art);
+      document.getElementById('imageDetailModal').classList.remove('hidden');
+    }
+
+    function closeDetailModal() {
+      state.activeModalArtId = null;
+      document.getElementById('imageDetailModal').classList.add('hidden');
+    }
+
+    function updateModalLikeUI(art) {
+      document.getElementById('modalLikeCount').textContent = art.likes;
+      const btn = document.getElementById('modalLikeBtn');
+      btn.className = art.likedByMe 
+        ? "px-3 py-1.5 rounded-xl bg-school-purple text-white font-bold text-xs flex items-center gap-1"
+        : "px-3 py-1.5 rounded-xl bg-school-lavenderLight text-school-purple font-bold text-xs flex items-center gap-1 border border-school-lavenderBorder";
+    }
+
+    function toggleModalLike() {
+      if (!state.activeModalArtId) return;
+      toggleLike(state.activeModalArtId);
+    }
+
+    function downloadDetailImage() {
+      const img = document.getElementById('modalArtworkImg');
+      if (img && img.src) downloadFile(img.src, `우리들의_AI창작소_작품.png`);
+    }
+
+    function openLoginModal() {
+      document.getElementById('loginModal').classList.remove('hidden');
+    }
+
+    function submitLogin() {
+      const name = document.getElementById('inputStudentName').value.trim();
+      const code = document.getElementById('inputClassCode').value.trim();
+
+      if (!name) {
+        showToast('이름을 입력해주세요!', 'error');
+        return;
+      }
+      if (!code) {
+        showToast('수업 비밀번호를 입력해주세요!', 'error');
+        return;
+      }
+
+      state.currentUser = name;
+      document.getElementById('currentUserDisplay').textContent = `${name} 학생의 창작소 ✨`;
+      document.getElementById('loginModal').classList.add('hidden');
+      document.getElementById('quotaBadge').classList.remove('hidden');
+
+      state.galleryItems.forEach(item => {
+        item.isMyArt = item.author.includes(name);
+      });
+      renderGallery();
+
+      showToast(`환영해요, ${name} 친구! 재미있게 그려봐요! 🎨`, 'success');
+    }
+
+    function navigateTo(view) {
+      const vWork = document.getElementById('viewWorkshop');
+      const vGal = document.getElementById('viewGallery');
+      const bWork = document.getElementById('btnNavWorkshop');
+      const bGal = document.getElementById('btnNavGallery');
+
+      if (view === 'workshop') {
+        vWork.classList.remove('hidden');
+        vGal.classList.add('hidden');
+        bWork.className = "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-cute text-base bg-school-purple text-white shadow-flat-purple transition active:translate-y-1 active:shadow-none";
+        bGal.className = "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-cute text-base bg-white text-school-ink border-2 border-slate-300 hover:border-school-mint hover:text-school-mint transition shadow-sm";
+      } else {
+        vWork.classList.add('hidden');
+        vGal.classList.remove('hidden');
+        bWork.className = "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-cute text-base bg-white text-school-ink border-2 border-slate-300 hover:border-school-purple hover:text-school-purple transition shadow-sm";
+        bGal.className = "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-cute text-base bg-school-mint text-white shadow-flat-mint transition active:translate-y-1 active:shadow-none";
+        
+        loadGalleryFromGoogleSheets();
+        renderGallery();
+      }
+    }
+
+    let toastTimer;
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('toastNotification');
+      const msgEl = document.getElementById('toastMessage');
+      const iconEl = document.getElementById('toastIcon');
+
+      msgEl.textContent = msg;
+
+      if (type === 'success') {
+        iconEl.innerHTML = '<i class="fa-solid fa-circle-check text-school-mint"></i>';
+      } else if (type === 'error') {
+        iconEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-school-purple"></i>';
+      } else {
+        iconEl.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles text-school-lavender"></i>';
+      }
+
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
